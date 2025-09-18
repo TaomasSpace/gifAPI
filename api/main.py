@@ -10,6 +10,9 @@ import os
 from fastapi import Depends, Header
 from db.db_helper import GifDB as SqliteGifDB
 from db.pg_helper import PgGifDB  # <— neu
+from fastapi import FastAPI, HTTPException, Query, Header, Depends, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from pathlib import Path
 
 
 # --- Pydantic Modelle ---
@@ -110,10 +113,19 @@ def logout(x_auth_token: str | None = Header(default=None, alias="X-Auth-Token")
     return {"ok": True}
 
 
-@app.get("/", response_class=HTMLResponse)
-def root():
+@app.get("/create", response_class=HTMLResponse)
+async def create_page(token: str = Depends(require_auth)):
     path = Path(__file__).resolve().parents[1] / "index.html"
     return path.read_text(encoding="utf-8")
+
+
+@app.get("/")
+async def root(request: Request):
+    token = request.headers.get("X-Auth-Token")
+    if token and db.validate_token(token):
+        return RedirectResponse(url="/create")
+    path = Path(__file__).resolve().parents[1] / "index.html"
+    return HTMLResponse(content=path.read_text(encoding="utf-8"))
 
 
 @app.get("/health")
