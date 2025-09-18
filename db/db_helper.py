@@ -529,3 +529,10 @@ class GifDB:
 
     def suggest_character(self, query: str, limit: int = 5) -> list[str]:
         return self._suggest_from_list(self.list_all_characters(), query, limit)
+
+    def get_token_expiry(self, token: str) -> str | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT expires_at FROM sessions WHERE token = ?", (token,)
+            ).fetchone()
+            return row["expires_at"] if row else None

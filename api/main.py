@@ -86,17 +86,20 @@ app.add_middleware(
 @app.post("/auth/login", response_model=LoginOut)
 def login(payload: LoginIn):
     if not ADMIN_PASSWORD:
+        # 500 ist okay, aber sag klar was fehlt
         raise HTTPException(500, "Server not configured: GIFAPI_ADMIN_PASSWORD missing")
+
     if payload.password != ADMIN_PASSWORD:
         raise HTTPException(401, "Invalid password")
+
     token = db.create_token(hours_valid=24)
-    # expires_at zurückgeben (aus DB holen)
-    # quick: erneutes validate ist overkill; wir lesen einfach die DB:
-    with db._connect() as conn:
-        row = conn.execute(
-            "SELECT expires_at FROM sessions WHERE token = ?", (token,)
-        ).fetchone()
-        return {"token": token, "expires_at": row["expires_at"] if row else None}
+    expires = None
+    try:
+        expires = db.get_token_expiry(token)
+    except AttributeError:
+        expires = None
+
+    return {"token": token, "expires_at": expires}
 
 
 @app.post("/auth/logout")

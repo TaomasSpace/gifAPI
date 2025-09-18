@@ -436,3 +436,12 @@ class PgGifDB:
 
     def suggest_character(self, query: str, limit: int = 5) -> list[str]:
         return self._suggest_from_list(self.list_all_characters(), query, limit)
+
+    def get_token_expiry(self, token: str) -> str | None:
+        with psycopg.connect(self.dsn) as conn, conn.cursor() as cur:
+            cur.execute("SELECT expires_at FROM sessions WHERE token=%s", (token,))
+            row = cur.fetchone()
+            if not row:
+                return None
+            exp = row[0]
+            return exp.isoformat() if exp is not None else None
