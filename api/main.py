@@ -6,7 +6,8 @@ from db.db_helper import GifDB
 from fastapi.responses import HTMLResponse
 from pathlib import Path
 from pydantic import BaseModel
-import difflib
+import os
+from fastapi import Depends, Header
 
 
 # --- Pydantic Modelle ---
@@ -53,7 +54,7 @@ app = FastAPI(title="Anime GIF API", version="0.1.0")
 db = GifDB("gifs.db")
 from fastapi.middleware.cors import CORSMiddleware
 
-ADMIN_PASSWORD = "Test"
+ADMIN_PASSWORD = os.getenv("GIFAPI_ADMIN_PASSWORD", "")
 
 
 def require_auth(x_auth_token: str | None = Header(default=None, alias="X-Auth-Token")):
