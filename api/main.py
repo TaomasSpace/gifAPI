@@ -54,10 +54,7 @@ class LoginOut(BaseModel):
 # --- App + DB ---
 app = FastAPI(title="Anime GIF API", version="0.1.0")
 DATABASE_URL = os.getenv("DATABASE_URL")  # von Render
-if DATABASE_URL:
-    db = PgGifDB(DATABASE_URL)  # ← Render
-else:
-    db = SqliteGifDB("gifs.db")
+db = PgGifDB(DATABASE_URL) if DATABASE_URL else SqliteGifDB("gifs.db")
 from fastapi.middleware.cors import CORSMiddleware
 
 ADMIN_PASSWORD = os.getenv("GIFAPI_ADMIN_PASSWORD", "")
