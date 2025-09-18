@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Anime GIF API – Insert UI</title>
+    <style>
+        :root {
+            --bg: #0f1223;
+            --card: #161a34;
+            --ink: #e7e9ff;
+            --muted: #9aa3c7;
+            --acc: #7c9cff;
+            --ok: #2ecc71;
+            --err: #e74c3c;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Ubuntu, Arial, sans-serif
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(120deg, #0f1223 0%, #13183a 70%);
+        }
+
+        .wrap {
+            max-width: 980px;
+            margin: 32px auto;
+            padding: 0 16px
+        }
+
+        h1 {
+            color: var(--ink);
+            font-weight: 800;
+            letter-spacing: .2px;
+            margin: 0 0 12px
+        }
+
+        p {
+            color: var(--muted);
+            margin-top: 0
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, .06);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+            padding: 18px;
+            margin: 16px 0
+        }
+
+        label {
+            color: var(--ink);
+            font-size: 14px;
+            font-weight: 600;
+            display: block;
+            margin: 12px 0 6px
+        }
+
+        input[type="text"],
+        input[type="url"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 12px;
+            background: #0e1330;
+            color: var(--ink);
+            outline: none;
+            transition: border-color .15s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        textarea:focus {
+            border-color: var(--acc)
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px
+        }
+
+        .chip {
+            background: #0b1030;
+            border: 1px solid rgba(255, 255, 255, .08);
+            color: #c7cffd;
+            padding: 6px 10px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .chip button {
+            all: unset;
+            cursor: pointer;
+            font-weight: 800;
+            opacity: .8
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .btn {
+            cursor: pointer;
+            background: var(--acc);
+            color: #080b1d;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: 700
+        }
+
+        .btn.secondary {
+            background: #25305e;
+            color: #cfe0ff
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px
+        }
+
+        .preview {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start
+        }
+
+        .preview img {
+            max-width: 260px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, .1)
+        }
+
+        .pill {
+            display: inline-block;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #0b1030;
+            border: 1px solid rgba(255, 255, 255, .08);
+            color: #c7cffd
+        }
+
+        .status {
+            margin-top: 10px;
+            font-size: 14px
+        }
+
+        .status.ok {
+            color: var(--ok)
+        }
+
+        .status.err {
+            color: var(--err)
+        }
+
+        code {
+            background: #0b1030;
+            color: #cfe0ff;
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loginModal" class="card"
+        style="display:none; position:fixed; right:16px; bottom:16px; max-width:340px; z-index:10;">
+        <h3 style="color:#e7e9ff;margin:0 0 8px;">Admin Login</h3>
+        <input type="password" id="adminPw" placeholder="Passwort" />
+        <div class="actions" style="margin-top:10px">
+            <button class="btn" id="btnLogin">Login</button>
+            <button class="btn secondary" id="btnLogout">Logout</button>
+        </div>
+        <div id="authMsg" class="status"></div>
+    </div>
+    <button class="btn" id="toggleLogin" style="position:fixed; right:16px; bottom:16px;">🔐</button>
+    <div class="wrap">
+        <h1>Anime GIF API – Insert</h1>
+        <p>Füllt das Formular aus und sendet es an <code>POST /gifs</code> eurer lokalen API. Das UI macht bei
+            identischer URL automatisch ein Update (wie eure API).</p>
+
+        <div class="card">
+            <form id="gifForm">
+                <label for="apiBase">API Base URL</label>
+                <input type="url" id="apiBase" value="http://127.0.0.1:8000" required />
+                <span class="muted">Beispiel: <code>http://127.0.0.1:8000</code></span>
+
+                <div class="row">
+                    <div>
+                        <label for="title">Title</label>
+                        <input type="text" id="title" placeholder="z. B. NazunaSmoke" required />
+                    </div>
+                    <div>
+                        <label for="anime">Anime</label>
+                        <input type="text" id="anime" placeholder="Call of the Night" />
+                    </div>
+                </div>
+
+                <label for="url">GIF URL</label>
+                <input type="url" id="url" placeholder="https://…/something.gif" required />
+
+                <div class="row">
+                    <div>
+                        <label>NSFW</label>
+                        <select id="nsfw">
+                            <option value="false" selected>sfw</option>
+                            <option value="true">nsfw</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="charInput">Character hinzufügen</label>
+                        <div class="row" style="grid-template-columns: 1fr auto; gap:8px">
+                            <input type="text" id="charInput" placeholder="Nazuna" />
+                            <button class="btn secondary" id="addChar" type="button">+ Add</button>
+                        </div>
+                        <div class="chips" id="chars"></div>
+                    </div>
+                </div>
+
+                <label for="tagInput">Tag hinzufügen</label>
+                <div class="row" style="grid-template-columns: 1fr auto; gap:8px">
+                    <input type="text" id="tagInput" placeholder="smoking" />
+                    <button class="btn secondary" id="addTag" type="button">+ Add</button>
+                </div>
+                <div class="chips" id="tags"></div>
+
+                <div class="actions">
+                    <button class="btn" type="submit">Speichern</button>
+                    <button class="btn secondary" type="button" id="fillDemo">Demo ausfüllen</button>
+                    <button class="btn secondary" type="button" id="clearAll">Reset</button>
+                </div>
+                <div id="status" class="status"></div>
+            </form>
+        </div>
+
+        <div class="card preview" id="preview" style="display:none">
+            <img id="gifPreview" alt="GIF preview" />
+            <div>
+                <div><span class="pill" id="pillNSFW">sfw</span></div>
+                <pre id="payloadBox" style="margin-top:10px;color:#cfe0ff"></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="color:var(--ink);margin:0 0 8px">Quick‑Test</h3>
+            <div class="actions">
+                <button class="btn secondary" id="btnRandom">GET /gifs/random</button>
+                <button class="btn secondary" id="btnTags">GET /tags</button>
+            </div>
+            <pre id="quickOut" class="muted" style="white-space:pre-wrap"></pre>
+        </div>
+    </div>
+
+    <script>
+        const $ = sel => document.querySelector(sel);
+        const chars = new Set();
+        const tags = new Set();
+
+        function renderChips(containerId, valuesSet) {
+            const el = $(containerId); el.innerHTML = '';
+            [...valuesSet].forEach(v => {
+                const chip = document.createElement('span');
+                chip.className = 'chip';
+                chip.innerHTML = `<span>${v}</span><button title="remove">×</button>`;
+                chip.querySelector('button').onclick = () => { valuesSet.delete(v); renderChips(containerId, valuesSet); };
+                el.appendChild(chip);
+            });
+        }
+
+        function buildPayload() {
+            return {
+                title: $('#title').value.trim(),
+                url: $('#url').value.trim(),
+                nsfw: $('#nsfw').value === 'true',
+                anime: ($('#anime').value || '').trim() || null,
+                characters: Array.from(chars),
+                tags: Array.from(tags),
+            };
+        }
+
+        function showPreview() {
+            const p = buildPayload();
+            $('#preview').style.display = p.url ? 'flex' : 'none';
+            $('#gifPreview').src = p.url || '';
+            $('#pillNSFW').textContent = p.nsfw ? 'nsfw' : 'sfw';
+            $('#pillNSFW').style.background = p.nsfw ? '#31131b' : '#0b1030';
+            $('#pillNSFW').style.borderColor = p.nsfw ? '#ff6b81' : 'rgba(255,255,255,.08)';
+            $('#payloadBox').textContent = JSON.stringify(p, null, 2);
+        }
+
+        $('#addChar').onclick = () => {
+            const v = $('#charInput').value.trim();
+            if (!v) return; chars.add(v); $('#charInput').value = ''; renderChips('#chars', chars); showPreview();
+        };
+        $('#addTag').onclick = () => {
+            const v = $('#tagInput').value.trim();
+            if (!v) return; tags.add(v.toLowerCase()); $('#tagInput').value = ''; renderChips('#tags', tags); showPreview();
+        };
+
+        ['title', 'url', 'anime', 'nsfw'].forEach(id => $('#' + id).addEventListener('input', showPreview));
+
+        $('#fillDemo').onclick = () => {
+            $('#title').value = 'NazunaSmoke';
+            $('#url').value = 'https://64.media.tumblr.com/f73b119eedb96c5c960440e9e95d7ca7/f85ffa2085789c11-63/s540x810/321435276705554ca903558d0443a94578805a0a.gif';
+            $('#anime').value = 'Call of the Night';
+            $('#nsfw').value = 'false';
+            chars.clear(); tags.clear();
+            chars.add('Nazuna'); tags.add('smoking'); tags.add('night');
+            renderChips('#chars', chars); renderChips('#tags', tags); showPreview();
+        };
+
+        $('#clearAll').onclick = () => {
+            $('#gifForm').reset(); chars.clear(); tags.clear();
+            renderChips('#chars', chars); renderChips('#tags', tags);
+            $('#preview').style.display = 'none'; $('#status').textContent = '';
+        };
+
+        // Quick‑tests
+        $('#btnRandom').onclick = async () => {
+            const base = $('#apiBase').value.replace(/\/$/, '');
+            const r = await fetch(base + '/gifs');
+            const j = await r.json(); $('#quickOut').textContent = JSON.stringify(j, null, 2);
+        };
+        $('#btnTags').onclick = async () => {
+            const base = $('#apiBase').value.replace(/\/$/, '');
+            const r = await fetch(base + '/gifs?list=tags');
+            const j = await r.json(); $('#quickOut').textContent = JSON.stringify(j, null, 2);
+        };
+        let AUTH_TOKEN = localStorage.getItem('gifapi_token') || null;
+
+        function authHeaders() {
+            return AUTH_TOKEN ? { 'X-Auth-Token': AUTH_TOKEN } : {};
+        }
+
+        function requireTokenOrAsk() {
+            if (!AUTH_TOKEN) {
+                $('#loginModal').style.display = 'block';
+                $('#authMsg').textContent = 'Bitte Admin-Passwort eingeben, um zu speichern.';
+                $('#authMsg').className = 'status err';
+                return false;
+            }
+            return true;
+        }
+
+        $('#toggleLogin').onclick = () => {
+            const vis = $('#loginModal').style.display !== 'none';
+            $('#loginModal').style.display = vis ? 'none' : 'block';
+        }
+
+        $('#btnLogin').onclick = async () => {
+            const base = $('#apiBase').value.replace(/\/$/, '');
+            const pw = $('#adminPw').value;
+            try {
+                const r = await fetch(base + '/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pw })
+                });
+                const j = await r.json();
+                if (!r.ok) throw new Error(j.detail || 'Login failed');
+                AUTH_TOKEN = j.token;
+                localStorage.setItem('gifapi_token', AUTH_TOKEN);
+                $('#authMsg').textContent = 'Login ok. Token gespeichert.';
+                $('#authMsg').className = 'status ok';
+            } catch (err) {
+                $('#authMsg').textContent = 'Login fehlgeschlagen: ' + err.message;
+                $('#authMsg').className = 'status err';
+            }
+        };
+
+        $('#btnLogout').onclick = async () => {
+            const base = $('#apiBase').value.replace(/\/$/, '');
+            try {
+                if (AUTH_TOKEN) {
+                    await fetch(base + '/auth/logout', { method: 'POST', headers: authHeaders() });
+                }
+            } finally {
+                AUTH_TOKEN = null;
+                localStorage.removeItem('gifapi_token');
+                $('#authMsg').textContent = 'Ausgeloggt.';
+                $('#authMsg').className = 'status';
+            }
+        };
+        $('#gifForm').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!requireTokenOrAsk()) return;
+
+            const base = $('#apiBase').value.replace(/\/$/, '');
+            const payload = buildPayload();
+
+            if (!payload.title || !payload.url) {
+                $('#status').textContent = 'Title und URL sind Pflichtfelder.';
+                $('#status').className = 'status err';
+                return;
+            }
+
+            try {
+                const res = await fetch(base + '/gifs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                    body: JSON.stringify(payload)
+                });
+
+                // Nice: 401 -> Login-Modal öffnen
+                if (res.status === 401) {
+                    $('#loginModal').style.display = 'block';
+                    throw new Error('Nicht autorisiert. Bitte einloggen.');
+                }
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || res.statusText);
+
+                $('#status').textContent = 'Gespeichert ✅ (ID ' + data.id + ')';
+                $('#status').className = 'status ok';
+            } catch (err) {
+                $('#status').textContent = 'Fehler: ' + err.message;
+                $('#status').className = 'status err';
+            }
+        };
+        $('#loginModal').style.display = 'none';
+
+    </script>
+</body>
+
+</html>
