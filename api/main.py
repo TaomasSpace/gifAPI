@@ -62,12 +62,21 @@ def require_auth(x_auth_token: str | None = Header(default=None, alias="X-Auth-T
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 
+ALLOWED_ORIGINS = [
+    o.strip()
+    for o in (
+        os.getenv("ALLOWED_ORIGINS")
+        or "https://gifapi-tqh4.onrender.com,http://127.0.0.1:8000,http://localhost:8000"
+    ).split(",")
+    if o.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # später einschränken!
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=False,  # wir nutzen Header-Token, keine Cookies
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "X-Auth-Token"],
 )
 
 
