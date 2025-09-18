@@ -51,7 +51,7 @@ class LoginOut(BaseModel):
 
 # --- App + DB ---
 app = FastAPI(title="Anime GIF API", version="0.1.0")
-db = GifDB("/database/gifs.db")
+db = GifDB("/db/gifs.db")
 from fastapi.middleware.cors import CORSMiddleware
 
 ADMIN_PASSWORD = os.getenv("GIFAPI_ADMIN_PASSWORD", "")
