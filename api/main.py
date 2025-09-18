@@ -8,7 +8,6 @@ from pathlib import Path
 from pydantic import BaseModel
 import os
 from fastapi import Depends, Header
-from pathlib import Path
 
 
 # --- Pydantic Modelle ---
@@ -51,11 +50,8 @@ class LoginOut(BaseModel):
 
 
 # --- App + DB ---
-REPO_ROOT = Path(__file__).resolve().parents[1]  # dein index.html nutzt das schon
-DEFAULT_DB_PATH = REPO_ROOT / "data" / "gifs.db"
-DB_PATH = Path(os.getenv("GIFAPI_DB_PATH", str(DEFAULT_DB_PATH)))
 app = FastAPI(title="Anime GIF API", version="0.1.0")
-db = GifDB(str(DB_PATH))
+db = GifDB("gifs.db")
 from fastapi.middleware.cors import CORSMiddleware
 
 ADMIN_PASSWORD = os.getenv("GIFAPI_ADMIN_PASSWORD", "")
