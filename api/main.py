@@ -64,7 +64,7 @@ def require_auth(x_auth_token: str | None = Header(default=None, alias="X-Auth-T
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # später einschränken!
+    allow_origins=["https://gifapi-tqh4.onrender.com"],  # später einschränken!
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -106,7 +106,7 @@ def health():
     return {"status": "ok"}
 
 
-@app.get("/gifs")  # <- muss VOR /gifs/{gif_id} stehen!
+@app.get("/gifs")  # muss vor /gifs/{gif_id} stehen
 def unified_get_gifs(
     q: Optional[str] = Query(None, description="Title contains (case-insensitive)"),
     tag: Optional[str] = Query(None, description="Pick random by tag"),
@@ -115,50 +115,44 @@ def unified_get_gifs(
     list: Optional[str] = Query(
         None, alias="list", description="Use 'tags' to list all tags"
     ),
+    nsfw: str = Query("false", description="false|true|only"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
 ):
-    """
-    Unified GIF fetch:
-      - no params -> random GIF
-      - q -> list of GIFs by title (limit/offset)
-      - tag/anime/character (exactly one) -> random GIF matching
-      - list=tags -> list of all tag names
-    Returns either a single GIF object or a list (for q / list=tags).
-    """
-    # list=tags
+    nsfw_mode = (nsfw or "false").lower()
+    if nsfw_mode not in {"false", "true", "only"}:
+        raise HTTPException(
+            status_code=400, detail="nsfw must be one of: false, true, only"
+        )
+
     if list is not None:
         if list.lower() == "tags":
-            return db.get_all_tags()
+            return db.get_all_tags(nsfw_mode=nsfw_mode)
         raise HTTPException(
             status_code=400, detail="Unsupported list value. Use list=tags"
         )
 
-    # Titel-Suche (Liste)
     if q is not None:
         if any([tag, anime, character]):
             raise HTTPException(
                 status_code=400, detail="Use either q OR one of tag/anime/character."
             )
-        return db.search_by_title(q, limit=limit, offset=offset)
+        return db.search_by_title(q, nsfw_mode=nsfw_mode, limit=limit, offset=offset)
 
-    # Mutual exclusivity for tag/anime/character
     filters_set = [x for x in [tag, anime, character] if x]
     if len(filters_set) > 1:
         raise HTTPException(
             status_code=400, detail="Use only one of tag, anime, or character."
         )
 
-    # Random by specific filter
     try:
         if tag:
-            return db.get_random_by_tag(tag)
+            return db.get_random_by_tag(tag, nsfw_mode=nsfw_mode)
         if anime:
-            return db.get_random_by_anime(anime)
+            return db.get_random_by_anime(anime, nsfw_mode=nsfw_mode)
         if character:
-            return db.get_random_by_character(character)
+            return db.get_random_by_character(character, nsfw_mode=nsfw_mode)
     except KeyError:
-        # Suggestions (nur für anime/character, wie gewünscht)
         if anime:
             suggestions = db.suggest_anime(anime, limit=5)
             raise HTTPException(
@@ -177,12 +171,11 @@ def unified_get_gifs(
                     "suggestions": {"meintest_du": suggestions},
                 },
             )
-        # Für Tag geben wir bewusst keine Suggestions zurück
         raise
 
-    # Default: komplett random
+    # Default: komplett random, mit NSFW-Filter
     try:
-        return db.get_random()
+        return db.get_random(nsfw_mode=nsfw_mode)
     except KeyError:
         raise HTTPException(status_code=404, detail="no gifs in database")
 

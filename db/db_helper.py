@@ -33,6 +33,18 @@ class GifDB:
         conn.execute("PRAGMA foreign_keys = ON;")
         return conn
 
+    def _nsfw_condition(self, mode: str | None, alias: str = "g") -> str:
+        """
+        mode: 'false' (nur SFW), 'true' (beides), 'only' (nur NSFW)
+        alias: Tabellenalias für gifs (z. B. 'g' oder 'gifs')
+        """
+        m = (mode or "false").lower()
+        if m == "only":
+            return f"{alias}.nsfw = 1"
+        if m == "false":
+            return f"{alias}.nsfw = 0"
+        return "1=1"  # 'true' => keine Einschränkung
+
     # ---------- Internal helpers ----------
 
     def _get_or_create(self, conn: sqlite3.Connection, table: str, name: str) -> int:
@@ -334,17 +346,16 @@ class GifDB:
             }
 
     def search_by_title(
-        self, query: str, limit: int = 50, offset: int = 0
-    ) -> List[Dict[str, Any]]:
-        """
-        Case-insensitive Teilstring-Suche im Titel.
-        """
+        self, query: str, nsfw_mode: str = "false", limit: int = 50, offset: int = 0
+    ):
         like = f"%{query}%"
         with self._connect() as conn:
+            cond = self._nsfw_condition(nsfw_mode, alias="gifs")
             rows = conn.execute(
-                """
+                f"""
                 SELECT * FROM gifs
                 WHERE title LIKE ? COLLATE NOCASE
+                AND {cond}
                 ORDER BY created_at DESC, id DESC
                 LIMIT ? OFFSET ?
                 """,
@@ -352,28 +363,27 @@ class GifDB:
             ).fetchall()
             return [self._compose_gif(conn, r) for r in rows]
 
-    def get_random(self) -> Dict[str, Any]:
-        """
-        Ein zufälliges GIF.
-        Hinweis: ORDER BY RANDOM() ist einfach, wird aber bei sehr großen Tabellen langsamer.
-        """
+    def get_random(self, nsfw_mode: str = "false"):
         with self._connect() as conn:
+            cond = self._nsfw_condition(nsfw_mode, alias="gifs")
             row = conn.execute(
-                "SELECT * FROM gifs ORDER BY RANDOM() LIMIT 1"
+                f"SELECT * FROM gifs WHERE {cond} ORDER BY RANDOM() LIMIT 1"
             ).fetchone()
             if not row:
                 raise KeyError("no gifs found")
             return self._compose_gif(conn, row)
 
-    def get_random_by_tag(self, tag: str) -> Dict[str, Any]:
+    def get_random_by_tag(self, tag: str, nsfw_mode: str = "false"):
         with self._connect() as conn:
+            cond = self._nsfw_condition(nsfw_mode, alias="g")
             row = conn.execute(
-                """
+                f"""
                 SELECT g.*
                 FROM gifs g
                 JOIN gif_tags gt ON gt.gif_id = g.id
                 JOIN tags t ON t.id = gt.tag_id
                 WHERE t.name = ? COLLATE NOCASE
+                AND {cond}
                 ORDER BY RANDOM()
                 LIMIT 1
                 """,
@@ -383,12 +393,14 @@ class GifDB:
                 raise KeyError(f"no gifs found for tag '{tag}'")
             return self._compose_gif(conn, row)
 
-    def get_random_by_anime(self, anime: str) -> Dict[str, Any]:
+    def get_random_by_anime(self, anime: str, nsfw_mode: str = "false"):
         with self._connect() as conn:
+            cond = self._nsfw_condition(nsfw_mode, alias="gifs")
             row = conn.execute(
-                """
+                f"""
                 SELECT * FROM gifs
                 WHERE anime = ? COLLATE NOCASE
+                AND {cond}
                 ORDER BY RANDOM()
                 LIMIT 1
                 """,
@@ -398,15 +410,17 @@ class GifDB:
                 raise KeyError(f"no gifs found for anime '{anime}'")
             return self._compose_gif(conn, row)
 
-    def get_random_by_character(self, character: str) -> Dict[str, Any]:
+    def get_random_by_character(self, character: str, nsfw_mode: str = "false"):
         with self._connect() as conn:
+            cond = self._nsfw_condition(nsfw_mode, alias="g")
             row = conn.execute(
-                """
+                f"""
                 SELECT g.*
                 FROM gifs g
                 JOIN gif_characters gc ON gc.gif_id = g.id
                 JOIN characters c ON c.id = gc.character_id
                 WHERE c.name = ? COLLATE NOCASE
+                AND {cond}
                 ORDER BY RANDOM()
                 LIMIT 1
                 """,
@@ -416,10 +430,18 @@ class GifDB:
                 raise KeyError(f"no gifs found for character '{character}'")
             return self._compose_gif(conn, row)
 
-    def get_all_tags(self) -> List[str]:
+    def get_all_tags(self, nsfw_mode: str = "false"):
         with self._connect() as conn:
+            cond = self._nsfw_condition(nsfw_mode, alias="g")
             rows = conn.execute(
-                "SELECT name FROM tags ORDER BY name COLLATE NOCASE"
+                f"""
+                SELECT DISTINCT t.name
+                FROM tags t
+                JOIN gif_tags gt ON gt.tag_id = t.id
+                JOIN gifs g ON g.id = gt.gif_id
+                WHERE {cond}
+                ORDER BY t.name COLLATE NOCASE
+                """
             ).fetchall()
             return [r["name"] for r in rows]
 
