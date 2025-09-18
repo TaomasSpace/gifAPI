@@ -21,11 +21,13 @@ from typing import Iterable, Optional, Dict, Any, List
 import secrets
 from datetime import datetime, timedelta, timezone
 import difflib
+from pathlib import Path
 
 
 class GifDB:
     def __init__(self, db_path: str):
         self.db_path = db_path
+        Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
