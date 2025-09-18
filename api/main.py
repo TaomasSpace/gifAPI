@@ -64,7 +64,7 @@ def require_auth(x_auth_token: str | None = Header(default=None, alias="X-Auth-T
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://gifapi-tqh4.onrender.com"],  # später einschränken!
+    allow_origins=["*"],  # später einschränken!
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
