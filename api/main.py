@@ -51,12 +51,7 @@ class LoginOut(BaseModel):
 
 # --- App + DB ---
 app = FastAPI(title="Anime GIF API", version="0.1.0")
-DB_PATH = os.getenv("GIFAPI_DB_PATH")
-if not DB_PATH:
-    BASE_DIR = Path(__file__).resolve().parents[1]
-    DB_PATH = str(BASE_DIR / "db" / "gifs.db")  # lokaler Fallback
-
-db = GifDB(DB_PATH)
+db = GifDB("/database/gifs.db")
 from fastapi.middleware.cors import CORSMiddleware
 
 ADMIN_PASSWORD = os.getenv("GIFAPI_ADMIN_PASSWORD", "")

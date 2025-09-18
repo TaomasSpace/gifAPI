@@ -73,7 +73,7 @@ def create_db(db_path: str) -> None:
 
 
 if __name__ == "__main__":
-    path = sys.argv[1] if len(sys.argv) > 1 else "/gifs.db"
+    path = sys.argv[1] if len(sys.argv) > 1 else "/database/gifs.db"
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     create_db(path)
     print(f"SQLite schema initialized at: {path}")
