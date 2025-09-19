@@ -3,13 +3,13 @@ from fastapi import FastAPI, HTTPException, Query, Header, Depends
 from pydantic import BaseModel, HttpUrl, Field
 from typing import List, Optional
 from db.db_helper import GifDB
-from fastapi.responses import HTMLResponse
 from pathlib import Path
 from pydantic import BaseModel
 import os
 from fastapi import Depends, Header
 from db.db_helper import GifDB as SqliteGifDB
 from db.pg_helper import PgGifDB  # <— neu
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 
 # --- Pydantic Modelle ---
@@ -81,6 +81,42 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "X-Auth-Token"],
 )
+
+
+@app.get("/auth/verify")
+def verify(x_auth_token: str | None = Header(default=None, alias="X-Auth-Token")):
+    if not x_auth_token or not db.validate_token(x_auth_token):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    # optional Ablaufzeit zurückgeben (falls DB das kann)
+    exp = None
+    try:
+        exp = db.get_token_expiry(x_auth_token)
+    except AttributeError:
+        pass
+    return {"ok": True, "expires_at": exp}
+
+
+@app.get("/admin", response_class=HTMLResponse)
+def admin_page():
+    # neue Datei: admin.html (siehe unten)
+    path = Path(__file__).resolve().parents[1] / "admin.html"
+    return path.read_text(encoding="utf-8")
+
+
+@app.get("/", response_class=HTMLResponse)
+def root():
+    return "<h1>GIF API</h1><p>Admin UI unter <a href='/admin'>/admin</a></p>"
+
+
+@app.get("/admin/gifs", dependencies=[Depends(require_auth)])
+def admin_list_gifs(
+    q: Optional[str] = Query("", description="Titel-Contains, leer = alle"),
+    nsfw: str = Query("true", description="false|true|only"),  # true = beides
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+):
+    # beide Backends unterstützen LIKE/ILIKE '%%'
+    return db.search_by_title(q or "", nsfw_mode=nsfw, limit=limit, offset=offset)
 
 
 @app.post("/auth/login", response_model=LoginOut)
@@ -245,7 +281,9 @@ def read_gif(gif_id: int):
         raise HTTPException(status_code=404, detail="GIF not found")
 
 
-@app.patch("/gifs/{gif_id}", response_model=GifOut)
+@app.patch(
+    "/gifs/{gif_id}", response_model=GifOut, dependencies=[Depends(require_auth)]
+)
 def update_gif(gif_id: int, payload: GifUpdate):
     # Prüfen, ob existiert
     try:
@@ -266,8 +304,10 @@ def update_gif(gif_id: int, payload: GifUpdate):
     return db.get_gif(gif_id)
 
 
-@app.delete("/gifs/{gif_id}", status_code=204)
-def delete_gif(gif_id: int):
+@app.patch(
+    "/gifs/{gif_id}", response_model=GifOut, dependencies=[Depends(require_auth)]
+)
+def update_gif(gif_id: int, payload: GifUpdate):
     # 404, wenn es nicht existiert
     try:
         _ = db.get_gif(gif_id)
