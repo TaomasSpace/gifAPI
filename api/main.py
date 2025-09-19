@@ -10,6 +10,7 @@ from fastapi import Depends, Header
 from db.db_helper import GifDB as SqliteGifDB
 from db.pg_helper import PgGifDB  # <— neu
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import Response
 
 
 # --- Pydantic Modelle ---
@@ -304,14 +305,11 @@ def update_gif(gif_id: int, payload: GifUpdate):
     return db.get_gif(gif_id)
 
 
-@app.patch(
-    "/gifs/{gif_id}", response_model=GifOut, dependencies=[Depends(require_auth)]
-)
-def update_gif(gif_id: int, payload: GifUpdate):
-    # 404, wenn es nicht existiert
+@app.delete("/gifs/{gif_id}", status_code=204, dependencies=[Depends(require_auth)])
+def delete_gif(gif_id: int):
     try:
-        _ = db.get_gif(gif_id)
+        _ = db.get_gif(gif_id)  # 404, falls nicht vorhanden
     except KeyError:
         raise HTTPException(status_code=404, detail="GIF not found")
     db.delete_gif(gif_id)
-    return
+    return Response(status_code=204)
