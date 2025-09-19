@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Anime GIF API – Insert UI</title>
+    <title>Anime GIF API – Admin</title>
     <style>
         :root {
             --bg: #0f1223;
@@ -13,7 +13,7 @@
             --muted: #9aa3c7;
             --acc: #7c9cff;
             --ok: #2ecc71;
-            --err: #e74c3c;
+            --err: #e74c3c
         }
 
         * {
@@ -23,7 +23,7 @@
 
         body {
             margin: 0;
-            background: linear-gradient(120deg, #0f1223 0%, #13183a 70%);
+            background: linear-gradient(120deg, #0f1223 0%, #13183a 70%)
         }
 
         .wrap {
@@ -72,7 +72,7 @@
             background: #0e1330;
             color: var(--ink);
             outline: none;
-            transition: border-color .15s ease;
+            transition: border-color .15s ease
         }
 
         input[type="text"]:focus,
@@ -185,94 +185,118 @@
 </head>
 
 <body>
+    <!-- Language picker -->
+    <div id="langPicker" style="position:fixed;top:12px;right:12px;z-index:20;display:flex;gap:8px;align-items:center">
+        <label for="lang" style="color:#cfe0ff;font-size:13px">🌐</label>
+        <select id="lang"
+            style="background:#0e1330;border:1px solid rgba(255,255,255,.2);color:#e7e9ff;border-radius:8px;padding:6px 8px">
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+        </select>
+    </div>
+
+    <!-- Login modal -->
     <div id="loginModal" class="card"
         style="display:none; position:fixed; right:16px; bottom:16px; max-width:340px; z-index:10;">
-        <h3 style="color:#e7e9ff;margin:0 0 8px;">Admin Login</h3>
-        <input type="password" id="adminPw" placeholder="Passwort" />
+        <h3 data-i18n="admin.login.title" style="color:#e7e9ff;margin:0 0 8px;">Admin Login</h3>
+        <input type="password" id="adminPw" data-i18n-placeholder="admin.login.password" placeholder="Passwort" />
         <div class="actions" style="margin-top:10px">
-            <button class="btn" id="btnLogin">Login</button>
-            <button class="btn secondary" id="btnLogout">Logout</button>
+            <button class="btn" id="btnLogin" data-i18n="admin.login.btnLogin">Login</button>
+            <button class="btn secondary" id="btnLogout" data-i18n="admin.login.btnLogout">Logout</button>
         </div>
         <div id="authMsg" class="status"></div>
     </div>
     <button class="btn" id="toggleLogin" style="position:fixed; right:16px; bottom:16px;">🔐</button>
+
     <div class="wrap">
-        <h1>Anime GIF API – Admin</h1>
-        <p>Füllt das Formular aus und sendet es an <code>POST /gifs</code> eurer lokalen API. Das UI macht bei
-            identischer URL automatisch ein Update (wie eure API).</p>
+        <h1 data-i18n="admin.title">Anime GIF API – Admin</h1>
+        <p class="muted" data-i18n="admin.intro">
+            Füllt das Formular aus und sendet es an <code>POST /gifs</code> eurer lokalen API. Das UI macht bei
+            identischer URL automatisch ein Update (wie eure API).
+        </p>
         <p class="muted" id="whoami"></p>
 
+        <!-- Builder -->
         <div class="card">
             <form id="gifForm">
-                <label for="apiBase">API Base URL</label>
-                <input type="url" id="apiBase" value="https://gifapi-tqh4.onrender.com/" required />
-                <span class="muted">Beispiel: <code>https://gifapi-tqh4.onrender.com/</code></span>
+                <label for="apiBase" data-i18n="label.base">API Base URL</label>
+                <input type="url" id="apiBase" value="https://gifapi-tqh4.onrender.com/" data-i18n-placeholder="ph.base"
+                    required />
+                <span class="muted"><span data-i18n="admin.example">Beispiel:</span>
+                    <code>https://gifapi-tqh4.onrender.com/</code></span>
 
                 <div class="row">
                     <div>
-                        <label for="title">Title</label>
-                        <input type="text" id="title" placeholder="z. B. NazunaSmoke" required />
+                        <label for="title" data-i18n="label.title">Title</label>
+                        <input type="text" id="title" data-i18n-placeholder="ph.title" placeholder="z. B. NazunaSmoke"
+                            required />
                     </div>
                     <div>
-                        <label for="anime">Anime</label>
-                        <input type="text" id="anime" placeholder="Call of the Night" />
+                        <label for="anime" data-i18n="label.anime">Anime</label>
+                        <input type="text" id="anime" data-i18n-placeholder="ph.anime"
+                            placeholder="Call of the Night" />
                     </div>
                 </div>
 
-                <label for="url">GIF URL</label>
+                <label for="url" data-i18n="admin.gifUrl">GIF URL</label>
                 <input type="url" id="url" placeholder="https://…/something.gif" required />
 
                 <div class="row">
                     <div>
-                        <label>NSFW</label>
+                        <label data-i18n="label.nsfwShort">NSFW</label>
                         <select id="nsfw">
-                            <option value="false" selected>sfw</option>
-                            <option value="true">nsfw</option>
+                            <option value="false" selected data-i18n="admin.sfw">sfw</option>
+                            <option value="true" data-i18n="admin.nsfw">nsfw</option>
                         </select>
                     </div>
                     <div>
-                        <label for="charInput">Character hinzufügen</label>
+                        <label for="charInput" data-i18n="admin.addCharacter">Character hinzufügen</label>
                         <div class="row" style="grid-template-columns: 1fr auto; gap:8px">
-                            <input type="text" id="charInput" placeholder="Nazuna" />
-                            <button class="btn secondary" id="addChar" type="button">+ Add</button>
+                            <input type="text" id="charInput" data-i18n-placeholder="ph.character"
+                                placeholder="Nazuna" />
+                            <button class="btn secondary" id="addChar" type="button" data-i18n="btn.add">+ Add</button>
                         </div>
                         <div class="chips" id="chars"></div>
                     </div>
                 </div>
 
-                <label for="tagInput">Tag hinzufügen</label>
+                <label for="tagInput" data-i18n="admin.addTag">Tag hinzufügen</label>
                 <div class="row" style="grid-template-columns: 1fr auto; gap:8px">
                     <input type="text" id="tagInput" placeholder="smoking" />
-                    <button class="btn secondary" id="addTag" type="button">+ Add</button>
+                    <button class="btn secondary" id="addTag" type="button" data-i18n="btn.add">+ Add</button>
                 </div>
                 <div class="chips" id="tags"></div>
 
                 <div class="actions">
-                    <button class="btn" type="submit">Speichern</button>
-                    <button class="btn secondary" type="button" id="fillDemo">Demo ausfüllen</button>
-                    <button class="btn secondary" type="button" id="clearAll">Reset</button>
+                    <button class="btn" type="submit" data-i18n="btn.save">Speichern</button>
+                    <button class="btn secondary" type="button" id="fillDemo" data-i18n="btn.fillDemo">Demo
+                        ausfüllen</button>
+                    <button class="btn secondary" type="button" id="clearAll" data-i18n="btn.reset">Reset</button>
                 </div>
                 <div id="status" class="status"></div>
             </form>
         </div>
 
+        <!-- Admin list -->
         <div class="card">
-            <h3 style="color:var(--ink);margin:0 0 8px">GIFs verwalten</h3>
+            <h3 style="color:var(--ink);margin:0 0 8px" data-i18n="admin.manage">GIFs verwalten</h3>
             <div class="row" style="grid-template-columns: 2fr 1fr auto; gap:8px; margin:8px 0 12px">
-                <input type="text" id="q" placeholder="Suche im Titel (leer = alle)" />
+                <input type="text" id="q" data-i18n-placeholder="admin.searchTitle"
+                    placeholder="Suche im Titel (leer = alle)" />
                 <select id="nsfwList">
-                    <option value="true" selected>sfw + nsfw</option>
-                    <option value="false">nur sfw</option>
-                    <option value="only">nur nsfw</option>
+                    <option value="true" selected data-i18n="admin.both">sfw + nsfw</option>
+                    <option value="false" data-i18n="admin.onlySfw">nur sfw</option>
+                    <option value="only" data-i18n="admin.onlyNsfw">nur nsfw</option>
                 </select>
-                <button class="btn secondary" id="btnReload">Reload</button>
+                <button class="btn secondary" id="btnReload" data-i18n="btn.reload">Reload</button>
             </div>
-            <div id="tableWrap" class="muted">Noch keine Daten.</div>
+            <div id="tableWrap" class="muted" data-i18n="admin.noData">Noch keine Daten.</div>
             <div class="actions">
-                <button class="btn secondary" id="more">Mehr laden</button>
+                <button class="btn secondary" id="more" data-i18n="btn.more">Mehr laden</button>
             </div>
         </div>
 
+        <!-- Preview -->
         <div class="card preview" id="preview" style="display:none">
             <img id="gifPreview" alt="GIF preview" />
             <div>
@@ -281,22 +305,112 @@
             </div>
         </div>
 
+        <!-- Quick test -->
         <div class="card">
-            <h3 style="color:var(--ink);margin:0 0 8px">Quick‑Test</h3>
+            <h3 style="color:var(--ink);margin:0 0 8px" data-i18n="admin.quick">Quick-Test</h3>
             <div class="actions">
-                <button class="btn secondary" id="btnRandom">GET /gifs/random</button>
-                <button class="btn secondary" id="btnTags">GET /tags</button>
+                <button class="btn secondary" id="btnRandom" data-i18n="admin.btnRandom">GET /gifs</button>
+                <button class="btn secondary" id="btnTags" data-i18n="admin.btnTags">GET /gifs?list=tags</button>
             </div>
             <pre id="quickOut" class="muted" style="white-space:pre-wrap"></pre>
         </div>
     </div>
 
-
     <script>
-        const $ = sel => document.querySelector(sel);
-        const chars = new Set();
-        const tags = new Set();
+        // --- i18n dictionary ---
+        const I18N = {
+            de: {
+                "admin.title": "Anime GIF API – Admin",
+                "admin.intro": "Füllt das Formular aus und sendet es an <code>POST /gifs</code> eurer lokalen API. Das UI macht bei identischer URL automatisch ein Update (wie eure API).",
+                "admin.example": "Beispiel:",
+                "label.base": "API Base URL",
+                "label.title": "Title",
+                "label.anime": "Anime",
+                "label.nsfwShort": "NSFW",
+                "admin.gifUrl": "GIF URL",
+                "admin.sfw": "sfw",
+                "admin.nsfw": "nsfw",
+                "admin.addCharacter": "Character hinzufügen",
+                "admin.addTag": "Tag hinzufügen",
+                "btn.add": "+ Add",
+                "btn.save": "Speichern",
+                "btn.fillDemo": "Demo ausfüllen",
+                "btn.reset": "Reset",
+                "btn.reload": "Reload",
+                "btn.more": "Mehr laden",
+                "admin.manage": "GIFs verwalten",
+                "admin.noData": "Noch keine Daten.",
+                "admin.quick": "Quick-Test",
+                "admin.btnRandom": "GET /gifs",
+                "admin.btnTags": "GET /gifs?list=tags",
+                "admin.login.title": "Admin Login",
+                "admin.login.password": "Passwort",
+                "admin.login.btnLogin": "Login",
+                "admin.login.btnLogout": "Logout",
+                "admin.searchTitle": "Suche im Titel (leer = alle)",
+                "admin.both": "sfw + nsfw",
+                "admin.onlySfw": "nur sfw",
+                "admin.onlyNsfw": "nur nsfw",
+                "ph.base": "https://deine-api.tld",
+                "ph.title": "z. B. NazunaSmoke",
+                "ph.anime": "Call of the Night",
+                "ph.character": "Nazuna"
+            },
+            en: {
+                "admin.title": "Anime GIF API – Admin",
+                "admin.intro": "Fill the form and send it to <code>POST /gifs</code> of your API. The UI updates automatically if a GIF with the same URL exists.",
+                "admin.example": "Example:",
+                "label.base": "API Base URL",
+                "label.title": "Title",
+                "label.anime": "Anime",
+                "label.nsfwShort": "NSFW",
+                "admin.gifUrl": "GIF URL",
+                "admin.sfw": "sfw",
+                "admin.nsfw": "nsfw",
+                "admin.addCharacter": "Add character",
+                "admin.addTag": "Add tag",
+                "btn.add": "+ Add",
+                "btn.save": "Save",
+                "btn.fillDemo": "Fill demo",
+                "btn.reset": "Reset",
+                "btn.reload": "Reload",
+                "btn.more": "Load more",
+                "admin.manage": "Manage GIFs",
+                "admin.noData": "No data yet.",
+                "admin.quick": "Quick test",
+                "admin.btnRandom": "GET /gifs",
+                "admin.btnTags": "GET /gifs?list=tags",
+                "admin.login.title": "Admin Login",
+                "admin.login.password": "Password",
+                "admin.login.btnLogin": "Login",
+                "admin.login.btnLogout": "Logout",
+                "admin.searchTitle": "Search in title (empty = all)",
+                "admin.both": "sfw + nsfw",
+                "admin.onlySfw": "sfw only",
+                "admin.onlyNsfw": "nsfw only",
+                "ph.base": "https://your-api.tld",
+                "ph.title": "e.g. NazunaSmoke",
+                "ph.anime": "Call of the Night",
+                "ph.character": "Nazuna"
+            }
+        };
+        function getLang() { const s = localStorage.getItem('gifapi_lang'); if (s) return s; const n = (navigator.language || 'en').toLowerCase(); return n.startsWith('de') ? 'de' : 'en' }
+        function applyI18n(lang) {
+            const dict = I18N[lang] || I18N.en;
+            document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (dict[k] != null) el.innerHTML = dict[k]; });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const k = el.getAttribute('data-i18n-placeholder'); if (dict[k] != null) el.setAttribute('placeholder', dict[k]); });
+            const sel = document.getElementById('lang'); if (sel) sel.value = lang;
+        }
+        window.addEventListener('load', () => {
+            const lang = getLang(); applyI18n(lang);
+            const picker = document.getElementById('lang');
+            picker.value = lang;
+            picker.addEventListener('change', () => { const l = picker.value; localStorage.setItem('gifapi_lang', l); applyI18n(l); });
+        });
 
+        // --- Admin logic (unchanged, but with "Load" support) ---
+        const $ = sel => document.querySelector(sel);
+        const chars = new Set(); const tags = new Set();
         function renderChips(containerId, valuesSet) {
             const el = $(containerId); el.innerHTML = '';
             [...valuesSet].forEach(v => {
@@ -307,18 +421,7 @@
                 el.appendChild(chip);
             });
         }
-
-        function buildPayload() {
-            return {
-                title: $('#title').value.trim(),
-                url: $('#url').value.trim(),
-                nsfw: $('#nsfw').value === 'true',
-                anime: ($('#anime').value || '').trim() || null,
-                characters: Array.from(chars),
-                tags: Array.from(tags),
-            };
-        }
-
+        function buildPayload() { return { title: $('#title').value.trim(), url: $('#url').value.trim(), nsfw: $('#nsfw').value === 'true', anime: ($('#anime').value || '').trim() || null, characters: Array.from(chars), tags: Array.from(tags) } }
         function showPreview() {
             const p = buildPayload();
             $('#preview').style.display = p.url ? 'flex' : 'none';
@@ -328,179 +431,65 @@
             $('#pillNSFW').style.borderColor = p.nsfw ? '#ff6b81' : 'rgba(255,255,255,.08)';
             $('#payloadBox').textContent = JSON.stringify(p, null, 2);
         }
-
-        $('#addChar').onclick = () => {
-            const v = $('#charInput').value.trim();
-            if (!v) return; chars.add(v); $('#charInput').value = ''; renderChips('#chars', chars); showPreview();
-        };
-        $('#addTag').onclick = () => {
-            const v = $('#tagInput').value.trim();
-            if (!v) return; tags.add(v.toLowerCase()); $('#tagInput').value = ''; renderChips('#tags', tags); showPreview();
-        };
-
+        $('#addChar').onclick = () => { const v = $('#charInput').value.trim(); if (!v) return; chars.add(v); $('#charInput').value = ''; renderChips('#chars', chars); showPreview(); };
+        $('#addTag').onclick = () => { const v = $('#tagInput').value.trim(); if (!v) return; tags.add(v.toLowerCase()); $('#tagInput').value = ''; renderChips('#tags', tags); showPreview(); };
         ['title', 'url', 'anime', 'nsfw'].forEach(id => $('#' + id).addEventListener('input', showPreview));
-
         $('#fillDemo').onclick = () => {
             $('#title').value = 'NazunaSmoke';
             $('#url').value = 'https://64.media.tumblr.com/f73b119eedb96c5c960440e9e95d7ca7/f85ffa2085789c11-63/s540x810/321435276705554ca903558d0443a94578805a0a.gif';
-            $('#anime').value = 'Call of the Night';
-            $('#nsfw').value = 'false';
-            chars.clear(); tags.clear();
-            chars.add('Nazuna'); tags.add('smoking'); tags.add('night');
+            $('#anime').value = 'Call of the Night'; $('#nsfw').value = 'false';
+            chars.clear(); tags.clear(); chars.add('Nazuna'); tags.add('smoking'); tags.add('night');
             renderChips('#chars', chars); renderChips('#tags', tags); showPreview();
         };
+        $('#clearAll').onclick = () => { $('#gifForm').reset(); chars.clear(); tags.clear(); renderChips('#chars', chars); renderChips('#tags', tags); $('#preview').style.display = 'none'; $('#status').textContent = ''; };
 
-        $('#clearAll').onclick = () => {
-            $('#gifForm').reset(); chars.clear(); tags.clear();
-            renderChips('#chars', chars); renderChips('#tags', tags);
-            $('#preview').style.display = 'none'; $('#status').textContent = '';
-        };
-
-        // Quick‑tests
-        $('#btnRandom').onclick = async () => {
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            const r = await fetch(base + '/gifs');
-            const j = await r.json(); $('#quickOut').textContent = JSON.stringify(j, null, 2);
-        };
-        $('#btnTags').onclick = async () => {
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            const r = await fetch(base + '/gifs?list=tags');
-            const j = await r.json(); $('#quickOut').textContent = JSON.stringify(j, null, 2);
-        };
+        // auth + calls
         let AUTH_TOKEN = localStorage.getItem('gifapi_token') || null;
-
-        function authHeaders() {
-            return AUTH_TOKEN ? { 'X-Auth-Token': AUTH_TOKEN } : {};
-        }
-
+        const authHeaders = () => AUTH_TOKEN ? { 'X-Auth-Token': AUTH_TOKEN } : {};
         function requireTokenOrAsk() {
             if (!AUTH_TOKEN) {
                 $('#loginModal').style.display = 'block';
-                $('#authMsg').textContent = 'Bitte Admin-Passwort eingeben, um zu speichern.';
-                $('#authMsg').className = 'status err';
-                return false;
-            }
-            return true;
+                $('#authMsg').textContent = (getLang() === 'de' ? 'Bitte Admin-Passwort eingeben, um zu speichern.' : 'Please enter admin password to save.');
+                $('#authMsg').className = 'status err'; return false;
+            } return true;
         }
-
-        $('#toggleLogin').onclick = () => {
-            const vis = $('#loginModal').style.display !== 'none';
-            $('#loginModal').style.display = vis ? 'none' : 'block';
-        }
-
+        $('#toggleLogin').onclick = () => { const vis = $('#loginModal').style.display !== 'none'; $('#loginModal').style.display = vis ? 'none' : 'block'; }
         $('#btnLogin').onclick = async () => {
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            const pw = $('#adminPw').value;
+            const base = $('#apiBase').value.replace(/\/$/, ''); const pw = $('#adminPw').value;
             try {
-                const r = await fetch(base + '/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: pw })
-                });
-                const j = await r.json();
-                if (!r.ok) throw new Error(j.detail || 'Login failed');
-                AUTH_TOKEN = j.token;
-                localStorage.setItem('gifapi_token', AUTH_TOKEN);
-                $('#authMsg').textContent = 'Login ok. Token gespeichert.';
-                $('#authMsg').className = 'status ok';
-            } catch (err) {
-                $('#authMsg').textContent = 'Login fehlgeschlagen: ' + err.message;
-                $('#authMsg').className = 'status err';
-            }
+                const r = await fetch(base + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pw }) });
+                const j = await r.json(); if (!r.ok) throw new Error(j.detail || 'Login failed');
+                AUTH_TOKEN = j.token; localStorage.setItem('gifapi_token', AUTH_TOKEN);
+                $('#authMsg').textContent = (getLang() === 'de' ? 'Login ok. Token gespeichert.' : 'Login ok. Token stored.'); $('#authMsg').className = 'status ok';
+            } catch (err) { $('#authMsg').textContent = (getLang() === 'de' ? 'Login fehlgeschlagen: ' : 'Login failed: ') + err.message; $('#authMsg').className = 'status err'; }
         };
-
-        $('#btnLogout').onclick = async () => {
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            try {
-                if (AUTH_TOKEN) {
-                    await fetch(base + '/auth/logout', { method: 'POST', headers: authHeaders() });
-                }
-            } finally {
-                AUTH_TOKEN = null;
-                localStorage.removeItem('gifapi_token');
-                $('#authMsg').textContent = 'Ausgeloggt.';
-                $('#authMsg').className = 'status';
-            }
-        };
+        $('#btnLogout').onclick = async () => { const base = $('#apiBase').value.replace(/\/$/, ''); try { if (AUTH_TOKEN) { await fetch(base + '/auth/logout', { method: 'POST', headers: authHeaders() }); } } finally { AUTH_TOKEN = null; localStorage.removeItem('gifapi_token'); $('#authMsg').textContent = (getLang() === 'de' ? 'Ausgeloggt.' : 'Logged out.'); $('#authMsg').className = 'status'; } };
         $('#gifForm').onsubmit = async (e) => {
-            e.preventDefault();
-            if (!requireTokenOrAsk()) return;
-
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            const payload = buildPayload();
-
-            if (!payload.title || !payload.url) {
-                $('#status').textContent = 'Title und URL sind Pflichtfelder.';
-                $('#status').className = 'status err';
-                return;
-            }
-
+            e.preventDefault(); if (!requireTokenOrAsk()) return;
+            const base = $('#apiBase').value.replace(/\/$/, ''); const payload = buildPayload();
+            if (!payload.title || !payload.url) { $('#status').textContent = (getLang() === 'de' ? 'Title und URL sind Pflichtfelder.' : 'Title and URL are required.'); $('#status').className = 'status err'; return; }
             try {
-                const res = await fetch(base + '/gifs', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-                    body: JSON.stringify(payload)
-                });
-
-                // Nice: 401 -> Login-Modal öffnen
-                if (res.status === 401) {
-                    $('#loginModal').style.display = 'block';
-                    throw new Error('Nicht autorisiert. Bitte einloggen.');
-                }
-
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || res.statusText);
-
-                $('#status').textContent = 'Gespeichert ✅ (ID ' + data.id + ')';
-                $('#status').className = 'status ok';
-            } catch (err) {
-                $('#status').textContent = 'Fehler: ' + err.message;
-                $('#status').className = 'status err';
-            }
+                const res = await fetch(base + '/gifs', { method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() }, body: JSON.stringify(payload) });
+                if (res.status === 401) { $('#loginModal').style.display = 'block'; throw new Error(getLang() === 'de' ? 'Nicht autorisiert. Bitte einloggen.' : 'Unauthorized. Please log in.'); }
+                const data = await res.json(); if (!res.ok) throw new Error(data.detail || res.statusText);
+                $('#status').textContent = (getLang() === 'de' ? 'Gespeichert ✅ (ID ' : 'Saved ✅ (ID ') + data.id + ')'; $('#status').className = 'status ok';
+            } catch (err) { $('#status').textContent = (getLang() === 'de' ? 'Fehler: ' : 'Error: ') + err.message; $('#status').className = 'status err'; }
         };
         $('#loginModal').style.display = 'none';
 
-        let ADMIN_OFFSET = 0;
-        const PAGE_SIZE = 25;
-
+        // verify + list + load + delete
         function setWhoAmI(text) { $('#whoami').textContent = text || ''; }
-
         async function verifyToken() {
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            if (!AUTH_TOKEN) return false;
-            try {
-                const r = await fetch(base + '/auth/verify', { headers: authHeaders() });
-                if (!r.ok) return false;
-                const j = await r.json();
-                setWhoAmI('Eingeloggt. Token gültig' + (j.expires_at ? ` (bis ${j.expires_at})` : ''));
-                return true;
-            } catch { return false; }
+            const base = $('#apiBase').value.replace(/\/$/, ''); if (!AUTH_TOKEN) return false;
+            try { const r = await fetch(base + '/auth/verify', { headers: authHeaders() }); if (!r.ok) return false; const j = await r.json(); setWhoAmI((getLang() === 'de' ? 'Eingeloggt. Token gültig' : 'Logged in. Token valid') + (j.expires_at ? ` (${getLang() === 'de' ? 'bis' : 'until'} ${j.expires_at})` : '')); return true; } catch { return false; }
         }
+        async function ensureAuthUI() { const ok = await verifyToken(); if (!ok) { $('#loginModal').style.display = 'block'; setWhoAmI(getLang() === 'de' ? 'Nicht eingeloggt.' : 'Not logged in.'); } }
+        let ADMIN_OFFSET = 0; const PAGE_SIZE = 25;
 
-        async function ensureAuthUI() {
-            const ok = await verifyToken();
-            if (!ok) {
-                $('#loginModal').style.display = 'block';
-                setWhoAmI('Nicht eingeloggt.');
-            }
-        }
-
-        // ----- Admin-Liste -----
         function renderTable(rows, append = false) {
             const wrap = $('#tableWrap');
-
             const makeRow = (g) => {
-                // JSON fürs Attribut sicher verpacken:
-                const payload = encodeURIComponent(JSON.stringify({
-                    id: g.id,
-                    title: g.title || '',
-                    url: g.url || '',
-                    nsfw: !!g.nsfw,
-                    anime: g.anime || '',
-                    characters: g.characters || [],
-                    tags: g.tags || []
-                }));
-
+                const payload = encodeURIComponent(JSON.stringify({ id: g.id, title: g.title || '', url: g.url || '', nsfw: !!g.nsfw, anime: g.anime || '', characters: g.characters || [], tags: g.tags || [] }));
                 return `
 <div style="display:grid;grid-template-columns:64px 1fr auto auto auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)">
   <img src="${g.url}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.08)"/>
@@ -509,106 +498,50 @@
     <div class="muted">#${g.id} • ${g.anime || '—'} • ${g.nsfw ? 'nsfw' : 'sfw'}</div>
     <div class="muted">Tags: ${(g.tags || []).join(', ') || '—'} | Chars: ${(g.characters || []).join(', ') || '—'}</div>
   </div>
-  <a class="btn secondary" href="${g.url}" target="_blank" rel="noopener">Open</a>
-  <button class="btn secondary" data-load="${payload}">Load</button>
-  <button class="btn" data-del="${g.id}">Delete</button>
+  <a class="btn secondary" href="${g.url}" target="_blank" rel="noopener">${getLang() === 'de' ? 'Open' : 'Open'}</a>
+  <button class="btn secondary" data-load="${payload}">${getLang() === 'de' ? 'Load' : 'Load'}</button>
+  <button class="btn" data-del="${g.id}">${getLang() === 'de' ? 'Delete' : 'Delete'}</button>
 </div>`;
             };
-
-            const html = rows.map(makeRow).join('');
-            if (!append) wrap.innerHTML = '';
-            wrap.insertAdjacentHTML('beforeend', html || '<span class="muted">Keine Treffer.</span>');
-
-            // Delete-Handler (wie gehabt)
+            const html = rows.map(makeRow).join(''); if (!append) wrap.innerHTML = '';
+            wrap.insertAdjacentHTML('beforeend', html || `<span class="muted">${getLang() === 'de' ? 'Keine Treffer.' : 'No results.'}</span>`);
             wrap.querySelectorAll('button[data-del]').forEach(btn => {
-                btn.onclick = async () => {
-                    const id = btn.getAttribute('data-del');
-                    if (!confirm('Wirklich löschen #' + id + '?')) return;
-                    await deleteGif(id);
-                    ADMIN_OFFSET = 0;
-                    await loadAdminList(false);
-                };
+                btn.onclick = async () => { const id = btn.getAttribute('data-del'); if (!confirm((getLang() === 'de' ? 'Wirklich löschen #' : 'Really delete #') + id + '?')) return; await deleteGif(id); ADMIN_OFFSET = 0; await loadAdminList(false); };
             });
-
-            // NEU: Load-Handler – JSON zurück decodieren und in den Builder laden
             wrap.querySelectorAll('button[data-load]').forEach(btn => {
-                btn.onclick = () => {
-                    try {
-                        const raw = btn.getAttribute('data-load');
-                        const g = JSON.parse(decodeURIComponent(raw));
-                        loadIntoBuilder(g);
-                    } catch (e) {
-                        alert('Konnte Datensatz nicht in den Builder laden: ' + e.message);
-                    }
-                };
+                btn.onclick = () => { try { const g = JSON.parse(decodeURIComponent(btn.getAttribute('data-load'))); loadIntoBuilder(g); } catch (e) { alert((getLang() === 'de' ? 'Konnte Datensatz nicht in den Builder laden: ' : 'Could not load into builder: ') + e.message); } }
             });
         }
-
         function loadIntoBuilder(g) {
-            $('#title').value = g.title || '';
-            $('#url').value = g.url || '';
-            $('#anime').value = g.anime || '';
-            $('#nsfw').value = g.nsfw ? 'true' : 'false';
-
-            chars.clear();
-            (g.characters || []).forEach(c => c && chars.add(String(c)));
-            tags.clear();
-            (g.tags || []).forEach(t => t && tags.add(String(t)));
-
-            renderChips('#chars', chars);
-            renderChips('#tags', tags);
-            showPreview();
-
+            $('#title').value = g.title || ''; $('#url').value = g.url || ''; $('#anime').value = g.anime || ''; $('#nsfw').value = g.nsfw ? 'true' : 'false';
+            chars.clear(); (g.characters || []).forEach(c => c && chars.add(String(c)));
+            tags.clear(); (g.tags || []).forEach(t => t && tags.add(String(t)));
+            renderChips('#chars', chars); renderChips('#tags', tags); showPreview();
             const formCard = document.querySelector('#gifForm').closest('.card');
-            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            formCard.style.boxShadow = '0 0 0 2px #7c9cff, 0 10px 30px rgba(0,0,0,.25)';
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); formCard.style.boxShadow = '0 0 0 2px #7c9cff, 0 10px 30px rgba(0,0,0,.25)';
             setTimeout(() => { formCard.style.boxShadow = ''; }, 800);
-
-            $('#status').textContent = 'Geladen aus Liste. Du kannst jetzt bearbeiten oder speichern.';
+            $('#status').textContent = (getLang() === 'de' ? 'Geladen aus Liste. Du kannst jetzt bearbeiten oder speichern.' : 'Loaded from list. You can edit or save now.');
             $('#status').className = 'status ok';
         }
-
-
         async function loadAdminList(append = false) {
             if (!AUTH_TOKEN) { $('#loginModal').style.display = 'block'; return; }
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            const q = encodeURIComponent($('#q').value.trim());
-            const nsfw = $('#nsfwList').value;
+            const base = $('#apiBase').value.replace(/\/$/, ''); const q = encodeURIComponent($('#q').value.trim()); const nsfw = $('#nsfwList').value;
             const url = `${base}/admin/gifs?q=${q}&nsfw=${nsfw}&limit=${PAGE_SIZE}&offset=${ADMIN_OFFSET}`;
-            const r = await fetch(url, { headers: authHeaders() });
-            if (!r.ok) {
-                $('#tableWrap').textContent = 'Fehler beim Laden: ' + r.statusText;
-                return;
-            }
-            const rows = await r.json();
-            renderTable(rows, append);
+            const r = await fetch(url, { headers: authHeaders() }); if (!r.ok) { $('#tableWrap').textContent = (getLang() === 'de' ? 'Fehler beim Laden: ' : 'Load error: ') + r.statusText; return; }
+            const rows = await r.json(); renderTable(rows, append);
         }
-
         async function deleteGif(id) {
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            const r = await fetch(base + '/gifs/' + id, { method: 'DELETE', headers: authHeaders() });
-            if (!r.ok && r.status !== 204) {
-                const j = await r.json().catch(() => ({ detail: r.statusText }));
-                alert('Löschen fehlgeschlagen: ' + (j.detail || r.statusText));
-            }
+            const base = $('#apiBase').value.replace(/\/$/, ''); const r = await fetch(base + '/gifs/' + id, { method: 'DELETE', headers: authHeaders() });
+            if (!r.ok && r.status !== 204) { const j = await r.json().catch(() => ({ detail: r.statusText })); alert((getLang() === 'de' ? 'Löschen fehlgeschlagen: ' : 'Delete failed: ') + (j.detail || r.statusText)); }
         }
-
         $('#btnReload').onclick = async () => { ADMIN_OFFSET = 0; await loadAdminList(false); };
         $('#more').onclick = async () => { ADMIN_OFFSET += PAGE_SIZE; await loadAdminList(true); };
-
-        // Login-Button überschreiben: nach Login Liste laden
         const origLogin = $('#btnLogin').onclick;
-        $('#btnLogin').onclick = async (e) => {
-            await origLogin(e);
-            if (AUTH_TOKEN) { $('#loginModal').style.display = 'none'; ADMIN_OFFSET = 0; await loadAdminList(false); await verifyToken(); }
-        };
-
-        // Beim Start: Token prüfen und ggf. Liste laden
-        window.addEventListener('load', async () => {
-            await ensureAuthUI();
-            if (AUTH_TOKEN) { ADMIN_OFFSET = 0; await loadAdminList(false); }
-        });
-
+        $('#btnLogin').onclick = async (e) => { await origLogin(e); if (AUTH_TOKEN) { $('#loginModal').style.display = 'none'; ADMIN_OFFSET = 0; await loadAdminList(false); await verifyToken(); } };
+        window.addEventListener('load', async () => { await ensureAuthUI(); if (AUTH_TOKEN) { ADMIN_OFFSET = 0; await loadAdminList(false); } });
+        // quick test
+        $('#btnRandom').onclick = async () => { const base = $('#apiBase').value.replace(/\/$/, ''); const r = await fetch(base + '/gifs'); const j = await r.json(); $('#quickOut').textContent = JSON.stringify(j, null, 2); };
+        $('#btnTags').onclick = async () => { const base = $('#apiBase').value.replace(/\/$/, ''); const r = await fetch(base + '/gifs?list=tags'); const j = await r.json(); $('#quickOut').textContent = JSON.stringify(j, null, 2); };
     </script>
 </body>
 
