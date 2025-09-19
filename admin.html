@@ -488,33 +488,86 @@
         // ----- Admin-Liste -----
         function renderTable(rows, append = false) {
             const wrap = $('#tableWrap');
-            const makeRow = (g) => `
-      <div style="display:grid;grid-template-columns:64px 1fr auto auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)">
-        <img src="${g.url}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.08)"/>
-        <div>
-          <div style="color:#e7e9ff;font-weight:700">${g.title}</div>
-          <div class="muted">#${g.id} • ${g.anime || '—'} • ${g.nsfw ? 'nsfw' : 'sfw'}</div>
-          <div class="muted">Tags: ${(g.tags || []).join(', ') || '—'} | Chars: ${(g.characters || []).join(', ') || '—'}</div>
-        </div>
-        <a class="btn secondary" href="${g.url}" target="_blank" rel="noopener">Open</a>
-        <button class="btn" data-del="${g.id}">Delete</button>
-      </div>
-    `;
+
+            const makeRow = (g) => {
+                // JSON fürs Attribut sicher verpacken:
+                const payload = encodeURIComponent(JSON.stringify({
+                    id: g.id,
+                    title: g.title || '',
+                    url: g.url || '',
+                    nsfw: !!g.nsfw,
+                    anime: g.anime || '',
+                    characters: g.characters || [],
+                    tags: g.tags || []
+                }));
+
+                return `
+<div style="display:grid;grid-template-columns:64px 1fr auto auto auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+  <img src="${g.url}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.08)"/>
+  <div>
+    <div style="color:#e7e9ff;font-weight:700">${g.title}</div>
+    <div class="muted">#${g.id} • ${g.anime || '—'} • ${g.nsfw ? 'nsfw' : 'sfw'}</div>
+    <div class="muted">Tags: ${(g.tags || []).join(', ') || '—'} | Chars: ${(g.characters || []).join(', ') || '—'}</div>
+  </div>
+  <a class="btn secondary" href="${g.url}" target="_blank" rel="noopener">Open</a>
+  <button class="btn secondary" data-load="${payload}">Load</button>
+  <button class="btn" data-del="${g.id}">Delete</button>
+</div>`;
+            };
+
             const html = rows.map(makeRow).join('');
             if (!append) wrap.innerHTML = '';
             wrap.insertAdjacentHTML('beforeend', html || '<span class="muted">Keine Treffer.</span>');
-            // Buttons verdrahten
+
+            // Delete-Handler (wie gehabt)
             wrap.querySelectorAll('button[data-del]').forEach(btn => {
                 btn.onclick = async () => {
                     const id = btn.getAttribute('data-del');
                     if (!confirm('Wirklich löschen #' + id + '?')) return;
                     await deleteGif(id);
-                    // nach Löschung Liste neu laden (einfacher)
                     ADMIN_OFFSET = 0;
                     await loadAdminList(false);
                 };
             });
+
+            // NEU: Load-Handler – JSON zurück decodieren und in den Builder laden
+            wrap.querySelectorAll('button[data-load]').forEach(btn => {
+                btn.onclick = () => {
+                    try {
+                        const raw = btn.getAttribute('data-load');
+                        const g = JSON.parse(decodeURIComponent(raw));
+                        loadIntoBuilder(g);
+                    } catch (e) {
+                        alert('Konnte Datensatz nicht in den Builder laden: ' + e.message);
+                    }
+                };
+            });
         }
+
+        function loadIntoBuilder(g) {
+            $('#title').value = g.title || '';
+            $('#url').value = g.url || '';
+            $('#anime').value = g.anime || '';
+            $('#nsfw').value = g.nsfw ? 'true' : 'false';
+
+            chars.clear();
+            (g.characters || []).forEach(c => c && chars.add(String(c)));
+            tags.clear();
+            (g.tags || []).forEach(t => t && tags.add(String(t)));
+
+            renderChips('#chars', chars);
+            renderChips('#tags', tags);
+            showPreview();
+
+            const formCard = document.querySelector('#gifForm').closest('.card');
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            formCard.style.boxShadow = '0 0 0 2px #7c9cff, 0 10px 30px rgba(0,0,0,.25)';
+            setTimeout(() => { formCard.style.boxShadow = ''; }, 800);
+
+            $('#status').textContent = 'Geladen aus Liste. Du kannst jetzt bearbeiten oder speichern.';
+            $('#status').className = 'status ok';
+        }
+
 
         async function loadAdminList(append = false) {
             if (!AUTH_TOKEN) { $('#loginModal').style.display = 'block'; return; }
