@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Anime GIF API – Explorer</title>
+    <title>Anime GIF API – Explorer & Docs</title>
     <style>
         :root {
             --bg: #0f1223;
@@ -13,7 +13,7 @@
             --muted: #9aa3c7;
             --acc: #7c9cff;
             --ok: #2ecc71;
-            --err: #e74c3c;
+            --err: #e74c3c
         }
 
         * {
@@ -27,20 +27,26 @@
         }
 
         .wrap {
-            max-width: 980px;
-            margin: 32px auto;
+            max-width: 1100px;
+            margin: 28px auto;
             padding: 0 16px
         }
 
         h1 {
             color: var(--ink);
-            margin: 0 0 6px;
+            margin: 0 0 8px;
             font-weight: 800
         }
 
-        p {
-            color: var(--muted);
-            margin-top: 6px
+        h2,
+        h3 {
+            color: var(--ink);
+            margin: 0 0 8px
+        }
+
+        p,
+        .muted {
+            color: var(--muted)
         }
 
         .card {
@@ -52,17 +58,37 @@
             margin: 16px 0
         }
 
+        .row {
+            display: grid;
+            gap: 12px
+        }
+
+        @media(min-width:780px) {
+            .cols-2 {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .cols-3 {
+                grid-template-columns: 1fr 1fr 1fr
+            }
+        }
+
         label {
             color: var(--ink);
             font-size: 14px;
-            font-weight: 600;
-            display: block;
-            margin: 12px 0 6px
+            font-weight: 700;
+            margin: 8px 0 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px
         }
 
-        input[type="text"],
-        input[type="url"],
-        input[type="number"],
+        .hint {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        input,
         select {
             width: 100%;
             padding: 12px 14px;
@@ -78,29 +104,14 @@
             border-color: var(--acc)
         }
 
-        .row {
-            display: grid;
-            gap: 16px
-        }
-
-        @media (min-width:720px) {
-            .row.cols-2 {
-                grid-template-columns: 1fr 1fr
-            }
-
-            .row.cols-3 {
-                grid-template-columns: 1fr 1fr 1fr
-            }
-        }
-
         .btn {
             cursor: pointer;
             background: var(--acc);
             color: #080b1d;
             border: none;
             border-radius: 12px;
-            padding: 12px 16px;
-            font-weight: 700
+            padding: 10px 14px;
+            font-weight: 800
         }
 
         .btn.secondary {
@@ -108,11 +119,16 @@
             color: #cfe0ff
         }
 
+        .btn.ghost {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, .2);
+            color: #cfe0ff
+        }
+
         .actions {
             display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 12px
+            gap: 10px;
+            flex-wrap: wrap
         }
 
         code,
@@ -124,272 +140,591 @@
         }
 
         .mono {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, Monaco, "Liberation Mono", "Courier New", monospace
         }
 
         pre {
-            padding: 14px;
+            padding: 12px;
             white-space: pre-wrap
         }
 
-        .muted {
-            color: var(--muted);
-            font-size: 13px
-        }
-
         .status {
-            margin-top: 10px;
-            font-size: 14px
+            margin-top: 8px
         }
 
-        .status.ok {
+        .ok {
             color: var(--ok)
         }
 
-        .status.err {
+        .err {
             color: var(--err)
         }
 
-        .copy {
-            margin-left: 8px
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #0b1030;
+            border: 1px solid rgba(255, 255, 255, .08);
+            color: #c7cffd;
+            font-size: 12px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px
+        }
+
+        .gifCard {
+            background: #0e1330;
+            border: 1px solid rgba(255, 255, 255, .06);
+            border-radius: 12px;
+            padding: 10px
+        }
+
+        .gifCard img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .08)
+        }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin: 8px 0
+        }
+
+        .tab {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            cursor: pointer
+        }
+
+        .tab.active {
+            background: var(--acc);
+            color: #080b1d;
+            border-color: transparent
+        }
+
+        details>summary {
+            cursor: pointer;
+            color: #cfe0ff
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 12px;
+            overflow: hidden
+        }
+
+        th,
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, .06);
+            color: #cfe0ff;
+            font-size: 14px
+        }
+
+        th {
+            background: #0e1330;
+            text-align: left
+        }
+
+        .kbd {
+            font-family: ui-monospace;
+            background: #11163a;
+            border: 1px solid rgba(255, 255, 255, .08);
+            padding: 1px 6px;
+            border-radius: 6px
         }
     </style>
 </head>
 
 <body>
     <div class="wrap">
-        <h1>Anime GIF API – Explorer</h1>
-        <p>Baue Anfragen an <code>/gifs</code>, bekomme die fertige URL und Beispiel-Code in Python. Wenn alle Felder
-            leer sind, verwenden wir <code>/gifs?</code> und du erhältst ein zufälliges GIF.</p>
+        <h1>Anime GIF API – Explorer & Docs</h1>
+        <p>Baue Anfragen an <code>/gifs</code>, sieh sofort die URL, den Code (Python &amp; cURL) und die Antwort. Lerne
+            unten die Regeln &amp; Beispiele. Wenn alles leer ist, verwenden wir <code>/gifs?</code> → ein zufälliges
+            GIF.</p>
 
+        <!-- BUILDER -->
         <div class="card">
-            <form id="form">
-                <label for="base">API-Basis-URL</label>
-                <input type="url" id="base" value="https://gifapi-tqh4.onrender.com" placeholder="https://deine-api.tld"
-                    required />
+            <h2>Query Builder</h2>
+            <div class="row cols-3">
+                <div>
+                    <label for="base">API-Basis-URL</label>
+                    <input id="base" type="url" value="https://gifapi-tqh4.onrender.com"
+                        placeholder="https://deine-api.tld" required>
+                    <div class="hint">Deine deployte Instanz. Kein Slash am Ende nötig.</div>
+                </div>
+                <div>
+                    <label for="nsfw">NSFW-Modus <span class="pill">false|true|only</span></label>
+                    <select id="nsfw">
+                        <option value="false" selected>false (nur SFW)</option>
+                        <option value="true">true (SFW+NSFW)</option>
+                        <option value="only">only (nur NSFW)</option>
+                    </select>
+                    <div class="hint">Standard ist <code>false</code>.</div>
+                </div>
+                <div>
+                    <label for="list">Liste (<code>list</code>)</label>
+                    <select id="list">
+                        <option value="">— (leer)</option>
+                        <option value="tags">tags (alle Tags)</option>
+                    </select>
+                    <div class="hint">Mit <code>list=tags</code> bekommst du alle verfügbaren Tags.</div>
+                </div>
+            </div>
 
-                <div class="row cols-3">
-                    <div>
-                        <label for="q">Suche im Titel (<code>q</code>)</label>
-                        <input type="text" id="q" placeholder="z. B. Nazuna" />
-                        <div class="muted">Wenn gefüllt, <b>nicht</b> gleichzeitig tag/anime/character setzen.</div>
-                    </div>
-                    <div>
-                        <label for="tag">Tag (<code>tag</code>)</label>
+            <div class="row cols-3">
+                <div>
+                    <label for="q">Suche im Titel (<code>q</code>)</label>
+                    <input id="q" type="text" placeholder="z. B. Nazuna">
+                    <div class="hint">Wenn gesetzt, dann <b>keins</b> von
+                        <code>tag</code>/<code>anime</code>/<code>character</code> benutzen.</div>
+                </div>
+                <div>
+                    <label for="tag">Tag (<code>tag</code>)</label>
+                    <div class="actions">
                         <select id="tag">
                             <option value="">— (leer)</option>
                         </select>
-                        <div class="muted">Dropdown lädt: <code>GET /gifs?list=tags</code></div>
+                        <button id="refreshTags" class="btn secondary" type="button">Tags neu laden</button>
                     </div>
-                    <div>
-                        <label for="anime">Anime (<code>anime</code>)</label>
-                        <input type="text" id="anime" placeholder="Call of the Night" />
-                    </div>
+                    <div class="hint">Dropdown lädt mit <code>GET /gifs?list=tags</code>.</div>
                 </div>
+                <div>
+                    <label for="anime">Anime (<code>anime</code>)</label>
+                    <input id="anime" type="text" placeholder="Call of the Night">
+                    <div class="hint">Exakter Match (case-insensitive).</div>
+                </div>
+            </div>
 
-                <div class="row cols-3">
-                    <div>
-                        <label for="character">Character (<code>character</code>)</label>
-                        <input type="text" id="character" placeholder="Nazuna" />
-                    </div>
-                    <div>
-                        <label for="nsfw">NSFW-Modus (<code>nsfw</code>)</label>
-                        <select id="nsfw">
-                            <option value="false" selected>false (nur SFW)</option>
-                            <option value="true">true (SFW + NSFW)</option>
-                            <option value="only">only (nur NSFW)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="list">Liste (<code>list</code>)</label>
-                        <select id="list">
-                            <option value="">— (leer)</option>
-                            <option value="tags">tags (alle Tags)</option>
-                        </select>
+            <div class="row cols-3">
+                <div>
+                    <label for="character">Character (<code>character</code>)</label>
+                    <input id="character" type="text" placeholder="Nazuna">
+                    <div class="hint">Exakter Match (case-insensitive).</div>
+                </div>
+                <div>
+                    <label for="limit">Limit (<code>limit</code>)</label>
+                    <input id="limit" type="number" min="1" max="200" placeholder="z. B. 50">
+                    <div class="hint">Wie viele Ergebnisse maximal zurückgegeben werden. Beispiel: <code>limit=5</code>.
                     </div>
                 </div>
+                <div>
+                    <label for="offset">Offset (<code>offset</code>)</label>
+                    <input id="offset" type="number" min="0" placeholder="z. B. 0">
+                    <div class="hint">Startposition (Pagination). Beispiel: <code>limit=5&amp;offset=10</code> →
+                        Ergebnisse 11–15.</div>
+                </div>
+            </div>
 
-                <div class="row cols-3">
-                    <div>
-                        <label for="limit">Limit (<code>limit</code>)</label>
-                        <input type="number" id="limit" min="1" max="200" placeholder="z. B. 50" />
-                    </div>
-                    <div>
-                        <label for="offset">Offset (<code>offset</code>)</label>
-                        <input type="number" id="offset" min="0" placeholder="z. B. 0" />
-                    </div>
-                    <div style="display:flex;align-items:flex-end">
-                        <button class="btn" type="submit">URL & Code erzeugen</button>
-                    </div>
+            <div class="actions" style="margin-top:8px">
+                <button id="presetRandom" class="btn">Preset: Random</button>
+                <button id="presetSfw" class="btn secondary">Preset: Random SFW</button>
+                <button id="presetTag" class="btn secondary">Preset: Tag</button>
+                <button id="presetAnime" class="btn secondary">Preset: Anime</button>
+                <button id="presetChar" class="btn secondary">Preset: Character</button>
+                <button id="clearAll" class="btn ghost">Zurücksetzen</button>
+            </div>
+
+            <div style="margin-top:14px">
+                <label>Fertige URL</label>
+                <div class="actions">
+                    <code id="outUrl" class="mono">/gifs?</code>
+                    <button id="copyUrl" class="btn secondary">Kopieren</button>
+                    <button id="shareUrl" class="btn secondary">Share-Link</button>
+                    <button id="run" class="btn">Ausführen</button>
                 </div>
-                <div id="formMsg" class="status"></div>
-            </form>
+                <div id="ruleMsg" class="status"></div>
+            </div>
+
+            <div style="margin-top:12px">
+                <div class="tabs">
+                    <div id="tabPy" class="tab active">Python (requests)</div>
+                    <div id="tabCurl" class="tab">cURL</div>
+                </div>
+                <pre id="codeBox" class="mono"></pre>
+                <div class="actions"><button id="copyCode" class="btn secondary">Code kopieren</button></div>
+            </div>
         </div>
 
+        <!-- RESULT -->
         <div class="card">
-            <h3 style="color:var(--ink);margin:0 0 8px">Ergebnis</h3>
-            <label>Fertige URL</label>
-            <div class="actions">
-                <code id="outUrl" class="mono">/gifs?</code>
-                <button id="copyUrl" class="btn secondary copy" type="button">Kopieren</button>
-                <button id="tryUrl" class="btn secondary" type="button">Ausführen</button>
+            <h2>Antwort</h2>
+            <div id="resultSummary" class="muted">—</div>
+            <div id="singleView" style="display:none" class="row cols-2">
+                <div><img id="gifImg" alt="GIF Preview"
+                        style="max-width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.08)"></div>
+                <div>
+                    <div id="gifMeta" class="muted"></div>
+                    <div class="actions" style="margin-top:8px">
+                        <a id="openGif" class="btn secondary" href="#" target="_blank" rel="noopener">GIF öffnen</a>
+                        <button id="copyGifUrl" class="btn secondary" type="button">GIF-URL kopieren</button>
+                    </div>
+                </div>
             </div>
-
-            <label style="margin-top:16px">Python (requests)</label>
-            <pre id="pyBox" class="mono"></pre>
-            <div class="actions">
-                <button id="copyPy" class="btn secondary copy" type="button">Code kopieren</button>
+            <div id="listView" class="grid" style="display:none"></div>
+            <div class="actions" style="margin-top:10px">
+                <button id="prevPage" class="btn secondary">« Zurück</button>
+                <button id="nextPage" class="btn secondary">Weiter »</button>
             </div>
+            <pre id="rawBox" class="mono muted" style="margin-top:12px">—</pre>
+        </div>
 
-            <label style="margin-top:16px">Antwort (JSON)</label>
-            <pre id="respBox" class="mono muted">—</pre>
+        <!-- HISTORY -->
+        <div class="card">
+            <h2>History (local)</h2>
+            <p class="muted">Zuletzt ausgeführte Anfragen. Klicke, um sie erneut zu laden.</p>
+            <div id="history" class="grid"></div>
+            <div class="actions" style="margin-top:8px"><button id="clearHistory" class="btn ghost">History
+                    löschen</button></div>
+        </div>
+
+        <!-- DOCS -->
+        <div class="card">
+            <h2>API-Dokumentation</h2>
+            <details open>
+                <summary><b>Regeln & Verhalten</b></summary>
+                <ul>
+                    <li><span class="kbd">q</span> (Titelsuche) ist exklusiv: <b>Entweder</b> <span class="kbd">q</span>
+                        <b>oder</b> genau eins von <span class="kbd">tag</span>/<span class="kbd">anime</span>/<span
+                            class="kbd">character</span>.</li>
+                    <li><span class="kbd">nsfw</span> ∈ {<code>false</code>, <code>true</code>, <code>only</code>} –
+                        Standard <code>false</code>.</li>
+                    <li>Ohne Filter liefert <code>/gifs?</code> ein zufälliges GIF (mit NSFW-Filter laut
+                        <code>nsfw</code>).</li>
+                    <li><span class="kbd">limit</span> & <span class="kbd">offset</span> dienen der Pagination (nur bei
+                        Titelsuche sinnvoll).</li>
+                    <li><code>list=tags</code> gibt alle Tags zurück (ignoriert andere Filter).</li>
+                </ul>
+            </details>
+            <div style="overflow:auto;margin-top:10px">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Typ</th>
+                            <th>Beispiel</th>
+                            <th>Beschreibung</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>q</code></td>
+                            <td>string</td>
+                            <td><code>q=Nazuna</code></td>
+                            <td>Suche im <b>Titel</b>. Nicht zusammen mit tag/anime/character.</td>
+                        </tr>
+                        <tr>
+                            <td><code>tag</code></td>
+                            <td>string</td>
+                            <td><code>tag=smoking</code></td>
+                            <td>Random GIF mit diesem Tag.</td>
+                        </tr>
+                        <tr>
+                            <td><code>anime</code></td>
+                            <td>string</td>
+                            <td><code>anime=Call of the Night</code></td>
+                            <td>Random GIF aus diesem Anime.</td>
+                        </tr>
+                        <tr>
+                            <td><code>character</code></td>
+                            <td>string</td>
+                            <td><code>character=Nazuna</code></td>
+                            <td>Random GIF mit diesem Character.</td>
+                        </tr>
+                        <tr>
+                            <td><code>list</code></td>
+                            <td>string</td>
+                            <td><code>list=tags</code></td>
+                            <td>Liste aller Tags.</td>
+                        </tr>
+                        <tr>
+                            <td><code>nsfw</code></td>
+                            <td>enum</td>
+                            <td><code>nsfw=false</code></td>
+                            <td><code>false</code>=nur SFW, <code>true</code>=beides, <code>only</code>=nur NSFW.</td>
+                        </tr>
+                        <tr>
+                            <td><code>limit</code></td>
+                            <td>int</td>
+                            <td><code>limit=20</code></td>
+                            <td>Max. Ergebnisse (1–200). Für Titelsuche.</td>
+                        </tr>
+                        <tr>
+                            <td><code>offset</code></td>
+                            <td>int</td>
+                            <td><code>offset=20</code></td>
+                            <td>Startposition (Pagination). Für Titelsuche.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="muted" style="margin-top:8px">Hinweis: Bei Tippfehlern in
+                <code>anime</code>/<code>character</code> liefert die API sinnvolle Vorschläge im Fehlerobjekt (HTTP
+                404, Feld <code>suggestions</code>).</p>
         </div>
     </div>
 
     <script>
         const $ = s => document.querySelector(s);
-        const byId = id => document.getElementById(id);
+        const el = id => document.getElementById(id);
 
-        const base = byId('base');
-        const q = byId('q');
-        const tag = byId('tag');
-        const anime = byId('anime');
-        const character = byId('character');
-        const nsfw = byId('nsfw');
-        const listSel = byId('list');
-        const limit = byId('limit');
-        const offset = byId('offset');
+        // Inputs
+        const base = el('base'), nsfw = el('nsfw'), listSel = el('list');
+        const q = el('q'), tag = el('tag'), anime = el('anime'), character = el('character');
+        const limit = el('limit'), offset = el('offset');
 
-        const outUrl = byId('outUrl');
-        const pyBox = byId('pyBox');
-        const respBox = byId('respBox');
-        const formMsg = byId('formMsg');
+        // UI outputs
+        const outUrl = el('outUrl'), ruleMsg = el('ruleMsg');
+        const codeBox = el('codeBox'); let activeTab = 'py';
+        const resultSummary = el('resultSummary'), rawBox = el('rawBox');
+        const singleView = el('singleView'), gifImg = el('gifImg'), gifMeta = el('gifMeta'), openGif = el('openGif');
+        const listView = el('listView');
+        const prevPage = el('prevPage'), nextPage = el('nextPage');
+        const historyWrap = el('history');
 
-        // --- Hilfen ---
-        function objToQuery(o) {
-            const p = new URLSearchParams();
-            for (const [k, v] of Object.entries(o)) {
-                if (v === undefined || v === null || v === '') continue;
-                p.append(k, String(v));
-            }
-            const qs = p.toString();
-            return qs ? '/gifs?' + qs : '/gifs?'; // Wunsch: immer Fragezeichen wenn leer
+        // State
+        const PAGE_DEFAULT = 20;
+        let lastParams = {};
+
+        // Helpers
+        function cleanBase(u) { return (u || '').replace(/\/+$/, ''); }
+        function paramsValidXor(p) {
+            const hasQ = !!p.q;
+            const singles = ['tag', 'anime', 'character'].filter(k => !!p[k]);
+            if (hasQ && singles.length > 0) return { ok: false, msg: "Entweder 'q' ODER eins von 'tag/anime/character' setzen – nicht beides." };
+            if (!hasQ && singles.length > 1) return { ok: false, msg: "Bitte nur EINES von 'tag/anime/character' setzen." };
+            return { ok: true, msg: '' };
         }
-
         function buildParams() {
-            const params = {};
-            // Regel: q XOR (tag|anime|character)
-            const hasQ = q.value.trim() !== '';
-            const singles = [tag.value, anime.value.trim(), character.value.trim()].filter(v => v);
-            if (hasQ && singles.length > 0) {
-                throw new Error("Entweder 'q' ODER eins von 'tag/anime/character' benutzen – nicht beides.");
+            const p = {};
+            if (q.value.trim()) p.q = q.value.trim();
+            if (!p.q) {
+                if (tag.value) p.tag = tag.value;
+                else if (anime.value.trim()) p.anime = anime.value.trim();
+                else if (character.value.trim()) p.character = character.value.trim();
             }
-            if (!hasQ && singles.length > 1) {
-                throw new Error("Bitte nur EINES von 'tag/anime/character' setzen.");
-            }
-
-            if (hasQ) params.q = q.value.trim();
-            else {
-                if (tag.value) params.tag = tag.value;
-                else if (anime.value.trim()) params.anime = anime.value.trim();
-                else if (character.value.trim()) params.character = character.value.trim();
-            }
-
-            if (listSel.value) params.list = listSel.value;
-            if (nsfw.value) params.nsfw = nsfw.value;
-            if (limit.value) params.limit = Number(limit.value);
-            if (offset.value) params.offset = Number(offset.value);
-            return params;
+            if (listSel.value) p.list = listSel.value;
+            p.nsfw = nsfw.value || 'false';
+            if (limit.value) p.limit = Number(limit.value);
+            if (offset.value) p.offset = Number(offset.value);
+            return p;
         }
+        function paramsToQS(p) {
+            const sp = new URLSearchParams();
+            Object.entries(p).forEach(([k, v]) => {
+                if (v === undefined || v === null || v === '') return;
+                sp.set(k, String(v));
+            });
+            const s = sp.toString();
+            return s ? '/gifs?' + s : '/gifs?';
+        }
+        function renderUrlAndCode() {
+            const p = buildParams();
+            const v = paramsValidXor(p);
+            ruleMsg.textContent = v.ok ? '' : v.msg;
+            ruleMsg.className = 'status ' + (v.ok ? '' : 'err');
 
-        function render(baseUrl, qsPath, params) {
-            const full = baseUrl.replace(/\/$/, '') + qsPath;
+            const path = paramsToQS(p);
+            const full = cleanBase(base.value) + path;
             outUrl.textContent = full;
 
-            // Python snippet
             const py = `import requests
 
-BASE = "${baseUrl.replace(/\/$/, '')}"
-params = ${JSON.stringify(params, null, 2) || "{}"}
-# Hinweis: Wenn params leer ist, liefert /gifs? ein zufälliges GIF
-r = requests.get(f"{BASE}/gifs", params=params or None, timeout=10)
+BASE = "${cleanBase(base.value)}"
+params = ${JSON.stringify(p, null, 2) || "{}"}
+r = requests.get(f"{BASE}/gifs", params=(params or None), timeout=10)
 r.raise_for_status()
 print(r.json())`;
-            pyBox.textContent = py;
+
+            const curl = `curl -sS "${cleanBase(base.value)}/gifs${Object.keys(p).length ? ('?' + new URLSearchParams(p).toString()) : ''}"`;
+
+            codeBox.textContent = (activeTab === 'py') ? py : curl;
+            lastParams = p;
         }
-
-        async function loadTags() {
-            try {
-                const url = base.value.replace(/\/$/, '') + '/gifs?list=tags';
-                const r = await fetch(url);
-                if (!r.ok) throw new Error(await r.text());
-                const tags = await r.json();
-                // Sortiert einfügen
-                const old = tag.value;
-                tag.innerHTML = '<option value="">— (leer)</option>' + (tags || []).map(t => `<option>${t}</option>`).join('');
-                if ([...tag.options].some(o => o.value === old)) tag.value = old;
-            } catch (e) {
-                console.warn('Tags konnten nicht geladen werden:', e);
-            }
-        }
-
-        // Initial Tags laden, wenn Basis-URL gesetzt ist
-        window.addEventListener('load', loadTags);
-        base.addEventListener('change', loadTags);
-
-        // Formular submit
-        byId('form').addEventListener('submit', async (ev) => {
-            ev.preventDefault();
-            formMsg.textContent = ''; formMsg.className = 'status';
-            respBox.textContent = '—';
-            try {
-                const params = buildParams();
-                const path = objToQuery(params);
-                render(base.value, path, params);
-
-                // Direkt ausführen?
-                const url = base.value.replace(/\/$/, '') + '/gifs';
-                const qs = new URLSearchParams(params);
-                const r = await fetch(url + (qs.toString() ? ('?' + qs.toString()) : ''));
-                const data = await r.json().catch(() => ({}));
-                respBox.textContent = JSON.stringify(data, null, 2);
-            } catch (err) {
-                formMsg.textContent = err.message;
-                formMsg.className = 'status err';
-            }
-        });
-
-        // „Ausführen“ Button
-        byId('tryUrl').addEventListener('click', async () => {
-            try {
-                const params = buildParams();
-                const url = base.value.replace(/\/$/, '') + '/gifs';
-                const qs = new URLSearchParams(params);
-                const r = await fetch(url + (qs.toString() ? ('?' + qs.toString()) : ''));
-                const data = await r.json().catch(() => ({}));
-                respBox.textContent = JSON.stringify(data, null, 2);
-            } catch (err) {
-                respBox.textContent = 'Fehler: ' + err.message;
-            }
-        });
-
-        // Copy-Buttons
-        byId('copyUrl').addEventListener('click', async () => {
-            try { await navigator.clipboard.writeText(outUrl.textContent); } catch { }
-        });
-        byId('copyPy').addEventListener('click', async () => {
-            try { await navigator.clipboard.writeText(pyBox.textContent); } catch { }
-        });
-
-        // UX: Wenn 'q' gesetzt wird, andere Felder deaktivieren (und umgekehrt)
         function syncLocks() {
             const hasQ = q.value.trim() !== '';
-            [tag, anime, character].forEach(el => el.disabled = hasQ);
+            [tag, anime, character].forEach(elm => elm.disabled = hasQ);
             const singles = [tag.value, anime.value.trim(), character.value.trim()].filter(Boolean).length;
             q.disabled = singles > 0;
         }
-        [q, tag, anime, character].forEach(el => el.addEventListener('input', syncLocks));
-        window.addEventListener('load', syncLocks);
+
+        // Event wiring
+        [base, nsfw, listSel, q, tag, anime, character, limit, offset].forEach(x => {
+            x.addEventListener('input', () => { syncLocks(); renderUrlAndCode(); });
+            x.addEventListener('change', () => { syncLocks(); renderUrlAndCode(); });
+        });
+
+        // Tabs
+        el('tabPy').onclick = () => { activeTab = 'py'; el('tabPy').classList.add('active'); el('tabCurl').classList.remove('active'); renderUrlAndCode(); };
+        el('tabCurl').onclick = () => { activeTab = 'curl'; el('tabCurl').classList.add('active'); el('tabPy').classList.remove('active'); renderUrlAndCode(); };
+
+        // Copy handlers
+        el('copyUrl').onclick = async () => { try { await navigator.clipboard.writeText(outUrl.textContent); } catch { } };
+        el('shareUrl').onclick = async () => { try { await navigator.clipboard.writeText(outUrl.textContent); } catch { } };
+        el('copyCode').onclick = async () => { try { await navigator.clipboard.writeText(codeBox.textContent); } catch { } };
+        el('copyGifUrl')?.addEventListener('click', async () => { try { await navigator.clipboard.writeText(openGif.href); } catch { } });
+
+        // Presets
+        function resetFilters() { q.value = ''; tag.value = ''; anime.value = ''; character.value = ''; limit.value = ''; offset.value = ''; listSel.value = ''; nsfw.value = 'false'; }
+        el('presetRandom').onclick = (e) => { e.preventDefault(); resetFilters(); nsfw.value = 'true'; renderUrlAndCode(); };
+        el('presetSfw').onclick = (e) => { e.preventDefault(); resetFilters(); nsfw.value = 'false'; renderUrlAndCode(); };
+        el('presetTag').onclick = (e) => { e.preventDefault(); resetFilters(); tag.value = tag.options.length > 1 ? tag.options[1].value : ''; nsfw.value = 'true'; renderUrlAndCode(); };
+        el('presetAnime').onclick = (e) => { e.preventDefault(); resetFilters(); anime.value = 'Call of the Night'; nsfw.value = 'false'; renderUrlAndCode(); };
+        el('presetChar').onclick = (e) => { e.preventDefault(); resetFilters(); character.value = 'Nazuna'; nsfw.value = 'false'; renderUrlAndCode(); };
+        el('clearAll').onclick = (e) => { e.preventDefault(); resetFilters(); renderUrlAndCode(); };
+
+        // Tags
+        async function loadTags() {
+            try {
+                const url = cleanBase(base.value) + '/gifs?list=tags';
+                const r = await fetch(url);
+                if (!r.ok) throw new Error(await r.text());
+                const tags = await r.json();
+                const cur = tag.value;
+                tag.innerHTML = '<option value="">— (leer)</option>' + (tags || []).map(t => `<option>${t}</option>`).join('');
+                if ([...tag.options].some(o => o.value === cur)) tag.value = cur;
+            } catch (e) { console.warn('Tags konnten nicht geladen werden', e); }
+        }
+        el('refreshTags').onclick = loadTags;
+        window.addEventListener('load', loadTags);
+
+        // History
+        function pushHistory(fullUrl) {
+            try {
+                const h = JSON.parse(localStorage.getItem('gifapi_history') || '[]');
+                h.unshift({ url: fullUrl, ts: Date.now() });
+                const uniq = []; const seen = new Set();
+                for (const item of h) {
+                    if (!seen.has(item.url)) { uniq.push(item); seen.add(item.url); }
+                    if (uniq.length >= 30) break;
+                }
+                localStorage.setItem('gifapi_history', JSON.stringify(uniq));
+            } catch { }
+        }
+        function renderHistory() {
+            try {
+                const h = JSON.parse(localStorage.getItem('gifapi_history') || '[]');
+                historyWrap.innerHTML = h.map(it => `
+          <div class="gifCard">
+            <div class="muted" style="font-size:12px">${new Date(it.ts).toLocaleString()}</div>
+            <div style="word-break:break-all;color:#e7e9ff;font-size:13px;margin:6px 0">${it.url}</div>
+            <div class="actions">
+              <button class="btn secondary" data-open="${it.url}">Öffnen</button>
+              <button class="btn ghost" data-apply="${it.url}">In Builder laden</button>
+            </div>
+          </div>`).join('');
+                historyWrap.querySelectorAll('[data-open]').forEach(b => b.onclick = () => window.open(b.dataset.open, '_blank'));
+                historyWrap.querySelectorAll('[data-apply]').forEach(b => b.onclick = () => {
+                    const u = new URL(b.dataset.apply);
+                    base.value = u.origin;
+                    const sp = u.searchParams;
+                    q.value = sp.get('q') || '';
+                    tag.value = sp.get('tag') || '';
+                    anime.value = sp.get('anime') || '';
+                    character.value = sp.get('character') || '';
+                    nsfw.value = sp.get('nsfw') || 'false';
+                    listSel.value = sp.get('list') || '';
+                    limit.value = sp.get('limit') || '';
+                    offset.value = sp.get('offset') || '';
+                    syncLocks(); renderUrlAndCode();
+                });
+            } catch { historyWrap.innerHTML = ''; }
+        }
+        el('clearHistory').onclick = () => { localStorage.removeItem('gifapi_history'); renderHistory(); };
+
+        // Execute
+        async function runQuery() {
+            const p = buildParams();
+            const v = paramsValidXor(p);
+            if (!v.ok) { ruleMsg.textContent = v.msg; ruleMsg.className = 'status err'; return; }
+
+            const baseUrl = cleanBase(base.value);
+            const qs = new URLSearchParams(p);
+            const url = baseUrl + '/gifs' + (qs.toString() ? ('?' + qs.toString()) : '');
+            outUrl.textContent = url;
+
+            try {
+                const r = await fetch(url);
+                const text = await r.text();
+                let data = null;
+                try { data = JSON.parse(text); } catch { data = { raw: text }; }
+                rawBox.textContent = JSON.stringify(data, null, 2);
+
+                // Render visual
+                singleView.style.display = 'none'; listView.style.display = 'none';
+                if (Array.isArray(data)) {
+                    resultSummary.textContent = `${data.length} Ergebnis(se).`;
+                    listView.innerHTML = data.map(g => `
+            <div class="gifCard">
+              <img src="${g.url || ''}" alt="">
+              <div style="color:#e7e9ff;font-weight:700;margin-top:6px">${g.title || '—'}</div>
+              <div class="muted" style="font-size:12px">#${g.id || '?'} • ${(g.anime || '—')} • ${(g.nsfw ? 'nsfw' : 'sfw')}</div>
+              <div class="actions" style="margin-top:6px">
+                <a class="btn secondary" href="${g.url || '#'}" target="_blank" rel="noopener">Open</a>
+                <button class="btn ghost" data-copy="${g.url || ''}">Copy URL</button>
+              </div>
+            </div>`).join('');
+                    listView.querySelectorAll('[data-copy]').forEach(b => b.onclick = async () => { try { await navigator.clipboard.writeText(b.dataset.copy); } catch { } });
+                    listView.style.display = '';
+                } else if (data && data.url) {
+                    resultSummary.textContent = `1 Ergebnis.`;
+                    gifImg.src = data.url; openGif.href = data.url;
+                    gifMeta.innerHTML = `
+            <div><b>Title:</b> ${data.title || '—'}</div>
+            <div><b>ID:</b> ${data.id || '—'}</div>
+            <div><b>Anime:</b> ${data.anime || '—'} &nbsp; <span class="pill">${data.nsfw ? 'nsfw' : 'sfw'}</span></div>
+            <div><b>Tags:</b> ${(data.tags || []).join(', ') || '—'}</div>
+            <div><b>Characters:</b> ${(data.characters || []).join(', ') || '—'}</div>
+            <div class="muted">created_at: ${data.created_at || '—'}</div>`;
+                    singleView.style.display = '';
+                } else if (p.list === 'tags' && Array.isArray(data)) {
+                    resultSummary.textContent = `${data.length} Tags.`;
+                } else {
+                    resultSummary.textContent = 'Antwort erhalten.';
+                }
+
+                // push history
+                pushHistory(url); renderHistory();
+            } catch (err) {
+                resultSummary.textContent = 'Fehler: ' + err.message;
+            }
+        }
+
+        el('run').onclick = (e) => { e.preventDefault(); runQuery(); };
+
+        // Pagination controls
+        prevPage.onclick = (e) => {
+            e.preventDefault();
+            const l = Number(limit.value || PAGE_DEFAULT);
+            const o = Math.max(0, Number(offset.value || 0) - l);
+            offset.value = String(o);
+            renderUrlAndCode(); runQuery();
+        };
+        nextPage.onclick = (e) => {
+            e.preventDefault();
+            const l = Number(limit.value || PAGE_DEFAULT);
+            const o = Number(offset.value || 0) + l;
+            offset.value = String(o);
+            renderUrlAndCode(); runQuery();
+        };
+
+        // Init
+        window.addEventListener('load', () => {
+            syncLocks();
+            if (!limit.value) limit.value = String(PAGE_DEFAULT);
+            renderUrlAndCode();
+            renderHistory();
+        });
     </script>
 </body>
 
