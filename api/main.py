@@ -106,7 +106,8 @@ def admin_page():
 
 @app.get("/", response_class=HTMLResponse)
 def root():
-    return "<h1>GIF API</h1><p>Admin UI unter <a href='/admin'>/admin</a></p>"
+    path = Path(__file__).resolve().parents[1] / "index.html"
+    return path.read_text(encoding="utf-8")
 
 
 @app.get("/admin/gifs", dependencies=[Depends(require_auth)])

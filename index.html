@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Anime GIF API – Insert UI</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Anime GIF API – Explorer</title>
     <style>
         :root {
             --bg: #0f1223;
@@ -18,12 +18,12 @@
 
         * {
             box-sizing: border-box;
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Ubuntu, Arial, sans-serif
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif
         }
 
         body {
             margin: 0;
-            background: linear-gradient(120deg, #0f1223 0%, #13183a 70%);
+            background: linear-gradient(120deg, #0f1223 0%, #13183a 70%)
         }
 
         .wrap {
@@ -34,14 +34,13 @@
 
         h1 {
             color: var(--ink);
-            font-weight: 800;
-            letter-spacing: .2px;
-            margin: 0 0 12px
+            margin: 0 0 6px;
+            font-weight: 800
         }
 
         p {
             color: var(--muted);
-            margin-top: 0
+            margin-top: 6px
         }
 
         .card {
@@ -63,58 +62,35 @@
 
         input[type="text"],
         input[type="url"],
-        select,
-        textarea {
+        input[type="number"],
+        select {
             width: 100%;
             padding: 12px 14px;
             border: 1px solid rgba(255, 255, 255, .1);
             border-radius: 12px;
             background: #0e1330;
             color: var(--ink);
-            outline: none;
-            transition: border-color .15s ease;
+            outline: none
         }
 
-        input[type="text"]:focus,
-        input[type="url"]:focus,
-        textarea:focus {
+        input:focus,
+        select:focus {
             border-color: var(--acc)
         }
 
         .row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
             gap: 16px
         }
 
-        .chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 8px
-        }
+        @media (min-width:720px) {
+            .row.cols-2 {
+                grid-template-columns: 1fr 1fr
+            }
 
-        .chip {
-            background: #0b1030;
-            border: 1px solid rgba(255, 255, 255, .08);
-            color: #c7cffd;
-            padding: 6px 10px;
-            border-radius: 999px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px
-        }
-
-        .chip button {
-            all: unset;
-            cursor: pointer;
-            font-weight: 800;
-            opacity: .8
-        }
-
-        .muted {
-            color: var(--muted);
-            font-size: 13px
+            .row.cols-3 {
+                grid-template-columns: 1fr 1fr 1fr
+            }
         }
 
         .btn {
@@ -139,26 +115,26 @@
             margin-top: 12px
         }
 
-        .preview {
-            display: flex;
-            gap: 16px;
-            align-items: flex-start
-        }
-
-        .preview img {
-            max-width: 260px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, .1)
-        }
-
-        .pill {
-            display: inline-block;
-            font-size: 12px;
-            padding: 4px 8px;
-            border-radius: 999px;
+        code,
+        pre {
             background: #0b1030;
-            border: 1px solid rgba(255, 255, 255, .08);
-            color: #c7cffd
+            color: #cfe0ff;
+            border: 1px solid rgba(255, 255, 255, .06);
+            border-radius: 10px
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
+        }
+
+        pre {
+            padding: 14px;
+            white-space: pre-wrap
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 13px
         }
 
         .status {
@@ -174,273 +150,246 @@
             color: var(--err)
         }
 
-        code {
-            background: #0b1030;
-            color: #cfe0ff;
-            padding: 2px 6px;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, .06)
+        .copy {
+            margin-left: 8px
         }
     </style>
 </head>
 
 <body>
-    <div id="loginModal" class="card"
-        style="display:none; position:fixed; right:16px; bottom:16px; max-width:340px; z-index:10;">
-        <h3 style="color:#e7e9ff;margin:0 0 8px;">Admin Login</h3>
-        <input type="password" id="adminPw" placeholder="Passwort" />
-        <div class="actions" style="margin-top:10px">
-            <button class="btn" id="btnLogin">Login</button>
-            <button class="btn secondary" id="btnLogout">Logout</button>
-        </div>
-        <div id="authMsg" class="status"></div>
-    </div>
-    <button class="btn" id="toggleLogin" style="position:fixed; right:16px; bottom:16px;">🔐</button>
     <div class="wrap">
-        <h1>Anime GIF API – Insert</h1>
-        <p>Füllt das Formular aus und sendet es an <code>POST /gifs</code> eurer lokalen API. Das UI macht bei
-            identischer URL automatisch ein Update (wie eure API).</p>
+        <h1>Anime GIF API – Explorer</h1>
+        <p>Baue Anfragen an <code>/gifs</code>, bekomme die fertige URL und Beispiel-Code in Python. Wenn alle Felder
+            leer sind, verwenden wir <code>/gifs?</code> und du erhältst ein zufälliges GIF.</p>
 
         <div class="card">
-            <form id="gifForm">
-                <label for="apiBase">API Base URL</label>
-                <input type="url" id="apiBase" value="https://gifapi-tqh4.onrender.com/" required />
-                <span class="muted">Beispiel: <code>https://gifapi-tqh4.onrender.com/</code></span>
+            <form id="form">
+                <label for="base">API-Basis-URL</label>
+                <input type="url" id="base" value="https://gifapi-tqh4.onrender.com" placeholder="https://deine-api.tld"
+                    required />
 
-                <div class="row">
+                <div class="row cols-3">
                     <div>
-                        <label for="title">Title</label>
-                        <input type="text" id="title" placeholder="z. B. NazunaSmoke" required />
+                        <label for="q">Suche im Titel (<code>q</code>)</label>
+                        <input type="text" id="q" placeholder="z. B. Nazuna" />
+                        <div class="muted">Wenn gefüllt, <b>nicht</b> gleichzeitig tag/anime/character setzen.</div>
                     </div>
                     <div>
-                        <label for="anime">Anime</label>
+                        <label for="tag">Tag (<code>tag</code>)</label>
+                        <select id="tag">
+                            <option value="">— (leer)</option>
+                        </select>
+                        <div class="muted">Dropdown lädt: <code>GET /gifs?list=tags</code></div>
+                    </div>
+                    <div>
+                        <label for="anime">Anime (<code>anime</code>)</label>
                         <input type="text" id="anime" placeholder="Call of the Night" />
                     </div>
                 </div>
 
-                <label for="url">GIF URL</label>
-                <input type="url" id="url" placeholder="https://…/something.gif" required />
-
-                <div class="row">
+                <div class="row cols-3">
                     <div>
-                        <label>NSFW</label>
+                        <label for="character">Character (<code>character</code>)</label>
+                        <input type="text" id="character" placeholder="Nazuna" />
+                    </div>
+                    <div>
+                        <label for="nsfw">NSFW-Modus (<code>nsfw</code>)</label>
                         <select id="nsfw">
-                            <option value="false" selected>sfw</option>
-                            <option value="true">nsfw</option>
+                            <option value="false" selected>false (nur SFW)</option>
+                            <option value="true">true (SFW + NSFW)</option>
+                            <option value="only">only (nur NSFW)</option>
                         </select>
                     </div>
                     <div>
-                        <label for="charInput">Character hinzufügen</label>
-                        <div class="row" style="grid-template-columns: 1fr auto; gap:8px">
-                            <input type="text" id="charInput" placeholder="Nazuna" />
-                            <button class="btn secondary" id="addChar" type="button">+ Add</button>
-                        </div>
-                        <div class="chips" id="chars"></div>
+                        <label for="list">Liste (<code>list</code>)</label>
+                        <select id="list">
+                            <option value="">— (leer)</option>
+                            <option value="tags">tags (alle Tags)</option>
+                        </select>
                     </div>
                 </div>
 
-                <label for="tagInput">Tag hinzufügen</label>
-                <div class="row" style="grid-template-columns: 1fr auto; gap:8px">
-                    <input type="text" id="tagInput" placeholder="smoking" />
-                    <button class="btn secondary" id="addTag" type="button">+ Add</button>
+                <div class="row cols-3">
+                    <div>
+                        <label for="limit">Limit (<code>limit</code>)</label>
+                        <input type="number" id="limit" min="1" max="200" placeholder="z. B. 50" />
+                    </div>
+                    <div>
+                        <label for="offset">Offset (<code>offset</code>)</label>
+                        <input type="number" id="offset" min="0" placeholder="z. B. 0" />
+                    </div>
+                    <div style="display:flex;align-items:flex-end">
+                        <button class="btn" type="submit">URL & Code erzeugen</button>
+                    </div>
                 </div>
-                <div class="chips" id="tags"></div>
-
-                <div class="actions">
-                    <button class="btn" type="submit">Speichern</button>
-                    <button class="btn secondary" type="button" id="fillDemo">Demo ausfüllen</button>
-                    <button class="btn secondary" type="button" id="clearAll">Reset</button>
-                </div>
-                <div id="status" class="status"></div>
+                <div id="formMsg" class="status"></div>
             </form>
         </div>
 
-        <div class="card preview" id="preview" style="display:none">
-            <img id="gifPreview" alt="GIF preview" />
-            <div>
-                <div><span class="pill" id="pillNSFW">sfw</span></div>
-                <pre id="payloadBox" style="margin-top:10px;color:#cfe0ff"></pre>
-            </div>
-        </div>
-
         <div class="card">
-            <h3 style="color:var(--ink);margin:0 0 8px">Quick‑Test</h3>
+            <h3 style="color:var(--ink);margin:0 0 8px">Ergebnis</h3>
+            <label>Fertige URL</label>
             <div class="actions">
-                <button class="btn secondary" id="btnRandom">GET /gifs/random</button>
-                <button class="btn secondary" id="btnTags">GET /tags</button>
+                <code id="outUrl" class="mono">/gifs?</code>
+                <button id="copyUrl" class="btn secondary copy" type="button">Kopieren</button>
+                <button id="tryUrl" class="btn secondary" type="button">Ausführen</button>
             </div>
-            <pre id="quickOut" class="muted" style="white-space:pre-wrap"></pre>
+
+            <label style="margin-top:16px">Python (requests)</label>
+            <pre id="pyBox" class="mono"></pre>
+            <div class="actions">
+                <button id="copyPy" class="btn secondary copy" type="button">Code kopieren</button>
+            </div>
+
+            <label style="margin-top:16px">Antwort (JSON)</label>
+            <pre id="respBox" class="mono muted">—</pre>
         </div>
     </div>
 
     <script>
-        const $ = sel => document.querySelector(sel);
-        const chars = new Set();
-        const tags = new Set();
+        const $ = s => document.querySelector(s);
+        const byId = id => document.getElementById(id);
 
-        function renderChips(containerId, valuesSet) {
-            const el = $(containerId); el.innerHTML = '';
-            [...valuesSet].forEach(v => {
-                const chip = document.createElement('span');
-                chip.className = 'chip';
-                chip.innerHTML = `<span>${v}</span><button title="remove">×</button>`;
-                chip.querySelector('button').onclick = () => { valuesSet.delete(v); renderChips(containerId, valuesSet); };
-                el.appendChild(chip);
-            });
-        }
+        const base = byId('base');
+        const q = byId('q');
+        const tag = byId('tag');
+        const anime = byId('anime');
+        const character = byId('character');
+        const nsfw = byId('nsfw');
+        const listSel = byId('list');
+        const limit = byId('limit');
+        const offset = byId('offset');
 
-        function buildPayload() {
-            return {
-                title: $('#title').value.trim(),
-                url: $('#url').value.trim(),
-                nsfw: $('#nsfw').value === 'true',
-                anime: ($('#anime').value || '').trim() || null,
-                characters: Array.from(chars),
-                tags: Array.from(tags),
-            };
-        }
+        const outUrl = byId('outUrl');
+        const pyBox = byId('pyBox');
+        const respBox = byId('respBox');
+        const formMsg = byId('formMsg');
 
-        function showPreview() {
-            const p = buildPayload();
-            $('#preview').style.display = p.url ? 'flex' : 'none';
-            $('#gifPreview').src = p.url || '';
-            $('#pillNSFW').textContent = p.nsfw ? 'nsfw' : 'sfw';
-            $('#pillNSFW').style.background = p.nsfw ? '#31131b' : '#0b1030';
-            $('#pillNSFW').style.borderColor = p.nsfw ? '#ff6b81' : 'rgba(255,255,255,.08)';
-            $('#payloadBox').textContent = JSON.stringify(p, null, 2);
-        }
-
-        $('#addChar').onclick = () => {
-            const v = $('#charInput').value.trim();
-            if (!v) return; chars.add(v); $('#charInput').value = ''; renderChips('#chars', chars); showPreview();
-        };
-        $('#addTag').onclick = () => {
-            const v = $('#tagInput').value.trim();
-            if (!v) return; tags.add(v.toLowerCase()); $('#tagInput').value = ''; renderChips('#tags', tags); showPreview();
-        };
-
-        ['title', 'url', 'anime', 'nsfw'].forEach(id => $('#' + id).addEventListener('input', showPreview));
-
-        $('#fillDemo').onclick = () => {
-            $('#title').value = 'NazunaSmoke';
-            $('#url').value = 'https://64.media.tumblr.com/f73b119eedb96c5c960440e9e95d7ca7/f85ffa2085789c11-63/s540x810/321435276705554ca903558d0443a94578805a0a.gif';
-            $('#anime').value = 'Call of the Night';
-            $('#nsfw').value = 'false';
-            chars.clear(); tags.clear();
-            chars.add('Nazuna'); tags.add('smoking'); tags.add('night');
-            renderChips('#chars', chars); renderChips('#tags', tags); showPreview();
-        };
-
-        $('#clearAll').onclick = () => {
-            $('#gifForm').reset(); chars.clear(); tags.clear();
-            renderChips('#chars', chars); renderChips('#tags', tags);
-            $('#preview').style.display = 'none'; $('#status').textContent = '';
-        };
-
-        // Quick‑tests
-        $('#btnRandom').onclick = async () => {
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            const r = await fetch(base + '/gifs');
-            const j = await r.json(); $('#quickOut').textContent = JSON.stringify(j, null, 2);
-        };
-        $('#btnTags').onclick = async () => {
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            const r = await fetch(base + '/gifs?list=tags');
-            const j = await r.json(); $('#quickOut').textContent = JSON.stringify(j, null, 2);
-        };
-        let AUTH_TOKEN = localStorage.getItem('gifapi_token') || null;
-
-        function authHeaders() {
-            return AUTH_TOKEN ? { 'X-Auth-Token': AUTH_TOKEN } : {};
-        }
-
-        function requireTokenOrAsk() {
-            if (!AUTH_TOKEN) {
-                $('#loginModal').style.display = 'block';
-                $('#authMsg').textContent = 'Bitte Admin-Passwort eingeben, um zu speichern.';
-                $('#authMsg').className = 'status err';
-                return false;
+        // --- Hilfen ---
+        function objToQuery(o) {
+            const p = new URLSearchParams();
+            for (const [k, v] of Object.entries(o)) {
+                if (v === undefined || v === null || v === '') continue;
+                p.append(k, String(v));
             }
-            return true;
+            const qs = p.toString();
+            return qs ? '/gifs?' + qs : '/gifs?'; // Wunsch: immer Fragezeichen wenn leer
         }
 
-        $('#toggleLogin').onclick = () => {
-            const vis = $('#loginModal').style.display !== 'none';
-            $('#loginModal').style.display = vis ? 'none' : 'block';
+        function buildParams() {
+            const params = {};
+            // Regel: q XOR (tag|anime|character)
+            const hasQ = q.value.trim() !== '';
+            const singles = [tag.value, anime.value.trim(), character.value.trim()].filter(v => v);
+            if (hasQ && singles.length > 0) {
+                throw new Error("Entweder 'q' ODER eins von 'tag/anime/character' benutzen – nicht beides.");
+            }
+            if (!hasQ && singles.length > 1) {
+                throw new Error("Bitte nur EINES von 'tag/anime/character' setzen.");
+            }
+
+            if (hasQ) params.q = q.value.trim();
+            else {
+                if (tag.value) params.tag = tag.value;
+                else if (anime.value.trim()) params.anime = anime.value.trim();
+                else if (character.value.trim()) params.character = character.value.trim();
+            }
+
+            if (listSel.value) params.list = listSel.value;
+            if (nsfw.value) params.nsfw = nsfw.value;
+            if (limit.value) params.limit = Number(limit.value);
+            if (offset.value) params.offset = Number(offset.value);
+            return params;
         }
 
-        $('#btnLogin').onclick = async () => {
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            const pw = $('#adminPw').value;
+        function render(baseUrl, qsPath, params) {
+            const full = baseUrl.replace(/\/$/, '') + qsPath;
+            outUrl.textContent = full;
+
+            // Python snippet
+            const py = `import requests
+
+BASE = "${baseUrl.replace(/\/$/, '')}"
+params = ${JSON.stringify(params, null, 2) || "{}"}
+# Hinweis: Wenn params leer ist, liefert /gifs? ein zufälliges GIF
+r = requests.get(f"{BASE}/gifs", params=params or None, timeout=10)
+r.raise_for_status()
+print(r.json())`;
+            pyBox.textContent = py;
+        }
+
+        async function loadTags() {
             try {
-                const r = await fetch(base + '/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: pw })
-                });
-                const j = await r.json();
-                if (!r.ok) throw new Error(j.detail || 'Login failed');
-                AUTH_TOKEN = j.token;
-                localStorage.setItem('gifapi_token', AUTH_TOKEN);
-                $('#authMsg').textContent = 'Login ok. Token gespeichert.';
-                $('#authMsg').className = 'status ok';
+                const url = base.value.replace(/\/$/, '') + '/gifs?list=tags';
+                const r = await fetch(url);
+                if (!r.ok) throw new Error(await r.text());
+                const tags = await r.json();
+                // Sortiert einfügen
+                const old = tag.value;
+                tag.innerHTML = '<option value="">— (leer)</option>' + (tags || []).map(t => `<option>${t}</option>`).join('');
+                if ([...tag.options].some(o => o.value === old)) tag.value = old;
+            } catch (e) {
+                console.warn('Tags konnten nicht geladen werden:', e);
+            }
+        }
+
+        // Initial Tags laden, wenn Basis-URL gesetzt ist
+        window.addEventListener('load', loadTags);
+        base.addEventListener('change', loadTags);
+
+        // Formular submit
+        byId('form').addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+            formMsg.textContent = ''; formMsg.className = 'status';
+            respBox.textContent = '—';
+            try {
+                const params = buildParams();
+                const path = objToQuery(params);
+                render(base.value, path, params);
+
+                // Direkt ausführen?
+                const url = base.value.replace(/\/$/, '') + '/gifs';
+                const qs = new URLSearchParams(params);
+                const r = await fetch(url + (qs.toString() ? ('?' + qs.toString()) : ''));
+                const data = await r.json().catch(() => ({}));
+                respBox.textContent = JSON.stringify(data, null, 2);
             } catch (err) {
-                $('#authMsg').textContent = 'Login fehlgeschlagen: ' + err.message;
-                $('#authMsg').className = 'status err';
+                formMsg.textContent = err.message;
+                formMsg.className = 'status err';
             }
-        };
+        });
 
-        $('#btnLogout').onclick = async () => {
-            const base = $('#apiBase').value.replace(/\/$/, '');
+        // „Ausführen“ Button
+        byId('tryUrl').addEventListener('click', async () => {
             try {
-                if (AUTH_TOKEN) {
-                    await fetch(base + '/auth/logout', { method: 'POST', headers: authHeaders() });
-                }
-            } finally {
-                AUTH_TOKEN = null;
-                localStorage.removeItem('gifapi_token');
-                $('#authMsg').textContent = 'Ausgeloggt.';
-                $('#authMsg').className = 'status';
-            }
-        };
-        $('#gifForm').onsubmit = async (e) => {
-            e.preventDefault();
-            if (!requireTokenOrAsk()) return;
-
-            const base = $('#apiBase').value.replace(/\/$/, '');
-            const payload = buildPayload();
-
-            if (!payload.title || !payload.url) {
-                $('#status').textContent = 'Title und URL sind Pflichtfelder.';
-                $('#status').className = 'status err';
-                return;
-            }
-
-            try {
-                const res = await fetch(base + '/gifs', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-                    body: JSON.stringify(payload)
-                });
-
-                // Nice: 401 -> Login-Modal öffnen
-                if (res.status === 401) {
-                    $('#loginModal').style.display = 'block';
-                    throw new Error('Nicht autorisiert. Bitte einloggen.');
-                }
-
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || res.statusText);
-
-                $('#status').textContent = 'Gespeichert ✅ (ID ' + data.id + ')';
-                $('#status').className = 'status ok';
+                const params = buildParams();
+                const url = base.value.replace(/\/$/, '') + '/gifs';
+                const qs = new URLSearchParams(params);
+                const r = await fetch(url + (qs.toString() ? ('?' + qs.toString()) : ''));
+                const data = await r.json().catch(() => ({}));
+                respBox.textContent = JSON.stringify(data, null, 2);
             } catch (err) {
-                $('#status').textContent = 'Fehler: ' + err.message;
-                $('#status').className = 'status err';
+                respBox.textContent = 'Fehler: ' + err.message;
             }
-        };
-        $('#loginModal').style.display = 'none';
+        });
 
+        // Copy-Buttons
+        byId('copyUrl').addEventListener('click', async () => {
+            try { await navigator.clipboard.writeText(outUrl.textContent); } catch { }
+        });
+        byId('copyPy').addEventListener('click', async () => {
+            try { await navigator.clipboard.writeText(pyBox.textContent); } catch { }
+        });
+
+        // UX: Wenn 'q' gesetzt wird, andere Felder deaktivieren (und umgekehrt)
+        function syncLocks() {
+            const hasQ = q.value.trim() !== '';
+            [tag, anime, character].forEach(el => el.disabled = hasQ);
+            const singles = [tag.value, anime.value.trim(), character.value.trim()].filter(Boolean).length;
+            q.disabled = singles > 0;
+        }
+        [q, tag, anime, character].forEach(el => el.addEventListener('input', syncLocks));
+        window.addEventListener('load', syncLocks);
     </script>
 </body>
 
