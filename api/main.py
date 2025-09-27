@@ -106,7 +106,7 @@ def admin_page():
 
 @app.get("/", response_class=HTMLResponse)
 def root():
-    path = Path(__file__).resolve().parents[1] / "index.html"
+    path = Path(__file__).resolve().parents[1] / "redirect.html"
     return path.read_text(encoding="utf-8")
 
 
@@ -146,12 +146,6 @@ def logout(x_auth_token: str | None = Header(default=None, alias="X-Auth-Token")
         raise HTTPException(400, "Missing token")
     db.revoke_token(x_auth_token)
     return {"ok": True}
-
-
-@app.get("/", response_class=HTMLResponse)
-def root():
-    path = Path(__file__).resolve().parents[1] / "index.html"
-    return path.read_text(encoding="utf-8")
 
 
 @app.get("/health")
